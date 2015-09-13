@@ -24,7 +24,6 @@ public class Deck extends Application
 
     public static void toast( String message )
     {
-        sToast.cancel();
         sToast.setText( message );
         sToast.show();
     }
