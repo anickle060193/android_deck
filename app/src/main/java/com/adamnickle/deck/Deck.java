@@ -3,13 +3,17 @@ package com.adamnickle.deck;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 
 public class Deck extends Application
 {
+    public static final String TAG = "DeckApplication";
+
     private static Context sContext;
+    private static Handler sHandler;
     private static Toast sToast;
 
     @SuppressLint("ShowToast")
@@ -19,13 +23,21 @@ public class Deck extends Application
         super.onCreate();
 
         sContext = this;
+        sHandler = new Handler();
         sToast = Toast.makeText( sContext, "", Toast.LENGTH_SHORT );
     }
 
-    public static void toast( String message )
+    public static void toast( final String message )
     {
-        sToast.setText( message );
-        sToast.show();
+        sHandler.post( new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                sToast.setText( message );
+                sToast.show();
+            }
+        } );
     }
 
     public static void toast( String messageFormat, Object... args )
@@ -33,11 +45,29 @@ public class Deck extends Application
         Deck.toast( String.format( messageFormat, args ) );
     }
 
+    public static void debugToast( String message )
+    {
+        if( BuildConfig.DEBUG )
+        {
+            Deck.toast( message );
+        }
+    }
+
+    public static void debugToast( String messageFormat, Object... args )
+    {
+        Deck.debugToast( String.format( messageFormat, args ) );
+    }
+
+    public static void debugToast( String message, Exception ex )
+    {
+        Deck.debugToast( "%s\n%s", message, ex.getMessage() );
+    }
+
     public static void log( String message )
     {
         if( BuildConfig.DEBUG )
         {
-            Log.d( "Deck", message );
+            Log.d( TAG, message );
         }
     }
 
@@ -51,7 +81,7 @@ public class Deck extends Application
         ex.printStackTrace();
         if( BuildConfig.DEBUG )
         {
-            Log.e( "Deck", message, ex );
+            Log.e( TAG, message, ex );
         }
     }
 }

@@ -13,6 +13,8 @@ import butterknife.OnClick;
 
 public class StartMenuFragment extends Fragment
 {
+    public static final String FRAGMENT_STATE_START_MENU = StartMenuFragment.class.getName();
+
     public static StartMenuFragment newInstance()
     {
         return new StartMenuFragment();
@@ -49,26 +51,26 @@ public class StartMenuFragment extends Fragment
     @OnClick( R.id.createGame )
     void onCreateGameClick()
     {
-        final BluetoothFragment btFragment = BluetoothFragment.newInstance();
+        final BluetoothFragment btFragment = BluetoothFragment.newInstance( true );
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
-                .addToBackStack( null )
-                .replace( R.id.main_content, GameFragment.newInstance( true, btFragment ) )
+                .addToBackStack( FRAGMENT_STATE_START_MENU )
                 .add( btFragment, BluetoothFragment.FRAGMENT_TAG )
+                .replace( R.id.main_content, GameFragment.newInstance( btFragment ) )
                 .commit();
     }
 
     @OnClick( R.id.joinGame )
     void onJoinGameClick()
     {
-        final BluetoothFragment btFragment = BluetoothFragment.newInstance();
+        final BluetoothFragment btFragment = BluetoothFragment.newInstance( false );
         getActivity().getSupportFragmentManager()
                 .beginTransaction()
                 .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
-                .addToBackStack( null )
-                .replace( R.id.main_content, ServerListFragment.newInstance( btFragment ) )
+                .addToBackStack( FRAGMENT_STATE_START_MENU )
                 .add( btFragment, BluetoothFragment.FRAGMENT_TAG )
+                .replace( R.id.main_content, ServerListFragment.newInstance( btFragment ) )
                 .commit();
     }
 

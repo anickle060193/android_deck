@@ -36,6 +36,9 @@ public class ServerListFragment extends Fragment
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        setRetainInstance( true );
+
+        mBluetoothFragment.registerBluetoothListener( mBluetoothListener );
     }
 
     @Override
@@ -51,13 +54,14 @@ public class ServerListFragment extends Fragment
             mRecyclerView.setAdapter( mAdapter );
             mAdapter.registerAdapterDataObserver( new ServerAdapterObserver() );
             updateViews();
-
-            mBluetoothFragment.registerBluetoothListener( mBluetoothListener );
         }
         else
         {
             final ViewGroup parent = (ViewGroup)mMainView.getParent();
-            parent.removeView( mMainView );
+            if( parent != null )
+            {
+                parent.removeView( mMainView );
+            }
         }
         return mMainView;
     }
@@ -78,10 +82,18 @@ public class ServerListFragment extends Fragment
         getActivity().setTitle( "Select server:" );
     }
 
+    @Override
+    public void onDestroy()
+    {
+        super.onDestroy();
+
+        mBluetoothFragment.unregisterBluetoothListener( mBluetoothListener );
+    }
+
     private final BluetoothFragment.BluetoothListener mBluetoothListener = new BluetoothFragment.BluetoothListener()
     {
         @Override
-        void onDeviceConnect( BluetoothDevice device )
+        public void onDeviceFound( BluetoothDevice device )
         {
             mAdapter.add( device );
         }
@@ -119,7 +131,7 @@ public class ServerListFragment extends Fragment
                     .beginTransaction()
                     .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
                     .addToBackStack( null )
-                    .replace( R.id.main_content, GameFragment.newInstance( false, mBluetoothFragment ) )
+                    .replace( R.id.main_content, GameFragment.newInstance( mBluetoothFragment ) )
                     .commit();
         }
     }
