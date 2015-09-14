@@ -6,13 +6,19 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 
-import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class GameFragment extends Fragment
 {
+    private View mMainView;
     private BluetoothFragment mBluetoothFragment;
+    private final List<PlayingCardView> mPlayingCardViews = new ArrayList<>();
+
+    private int mOrientation;
 
     public static GameFragment newInstance( BluetoothFragment bluetoothFragment )
     {
@@ -28,32 +34,37 @@ public class GameFragment extends Fragment
         setRetainInstance( true );
 
         mBluetoothFragment.registerBluetoothListener( mListener );
+
+        mOrientation = getResources().getConfiguration().orientation;
     }
 
     @Override
     public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState )
     {
-        return inflater.inflate( R.layout.fragment_game, container, false );
-    }
-
-    @Override
-    public void onViewCreated( View view, Bundle savedInstanceState )
-    {
-        view.setOnClickListener( new View.OnClickListener()
+        if( mMainView == null )
         {
-            @Override
-            public void onClick( View v )
+            mMainView = inflater.inflate( R.layout.fragment_game, container, false );
+
+            mMainView.setOnClickListener( new View.OnClickListener()
             {
-                try
+                @Override
+                public void onClick( View v )
                 {
-                    mBluetoothFragment.write( ( Long.toString( System.currentTimeMillis() ).getBytes( "UTF-8" ) ) );
+                    final PlayingCardView playingCardView = new PlayingCardView( getActivity() );
+                    ( (ViewGroup)v ).addView( playingCardView );
+                    mPlayingCardViews.add( playingCardView );
                 }
-                catch( UnsupportedEncodingException ex )
-                {
-                    Deck.log( "An error occurred encoding the message.", ex );
-                }
+            } );
+        }
+        else
+        {
+            final ViewGroup parent = (ViewGroup)mMainView.getParent();
+            if( parent != null )
+            {
+                parent.removeView( mMainView );
             }
-        } );
+        }
+        return mMainView;
     }
 
     @Override
@@ -63,7 +74,7 @@ public class GameFragment extends Fragment
 
         if( mBluetoothFragment.isServer() )
         {
-            mBluetoothFragment.createServer();
+            //ajn mBluetoothFragment.createServer();
         }
     }
 
@@ -73,6 +84,21 @@ public class GameFragment extends Fragment
         super.onResume();
 
         getActivity().setTitle( R.string.app_name );
+
+        final int newOrientation = getResources().getConfiguration().orientation;
+        if( newOrientation != mOrientation )
+        {
+            for( PlayingCardView view : mPlayingCardViews )
+            {
+                final FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)view.getLayoutParams();
+                final int temp = params.leftMargin;
+                //noinspection SuspiciousNameCombination
+                params.leftMargin = params.topMargin;
+                params.topMargin = temp;
+                view.setLayoutParams( params );
+            }
+            mOrientation = newOrientation;
+        }
     }
 
     @Override
@@ -98,11 +124,11 @@ public class GameFragment extends Fragment
         {
             if( mBluetoothFragment.isServer() )
             {
-                Deck.toast( "Device connected: %s - %s", device.getName(), device.getAddress() );
+                Deck.toast( "Device connected: %s", device.getName() );
             }
             else
             {
-                Deck.toast( "Connected to server: %s - %s", device.getName(), device.getAddress() );
+                Deck.toast( "Connected to server: %s", device.getName() );
             }
         }
 
@@ -111,26 +137,12 @@ public class GameFragment extends Fragment
         {
             if( mBluetoothFragment.isServer() )
             {
-                Deck.toast( "Device disconnected: %s - %s", device.getName(), device.getAddress() );
+                Deck.toast( "Device disconnected: %s", device.getName() );
             }
             else
             {
-                Deck.toast( "Disconnected from server: %s - %s", device.getName(), device.getAddress() );
+                Deck.toast( "Disconnected from server: %s", device.getName() );
                 MainActivity.backToMenu( getActivity() );
-            }
-        }
-
-        @Override
-        public void onDataReceived( BluetoothDevice device, byte[] data )
-        {
-            try
-            {
-                final String message = new String( data, "UTF-8" );
-                Deck.toast( message );
-            }
-            catch( UnsupportedEncodingException ex )
-            {
-                Deck.log( "An error occurred decoding the message data.", ex );
             }
         }
     };
