@@ -44,7 +44,7 @@ for filename in os.listdir( inputFolder ):
             width = cardWidth * outputDpis[ i ] / DEFAULT_DPI
             height = cardHeight * outputDpis[ i ] / DEFAULT_DPI
             stdout.write( "    " + outputFolders[ i ] + "..." )
-            ret = call( [ 'C:\Program Files\Inkscape\inkscape.exe', '-f', filename, '-e', outFile, '-D', '-w', str( width ), '-h', str( height ) ] )
+            ret = call( [ 'C:\Program Files\Inkscape\inkscape.exe', '-f', filename, '-e', outFile, '-C', '-w', str( width ), '-h', str( height ) ] )
             if ret == 0:
                 stdout.write( "Success\n" )
             else:
@@ -66,3 +66,5 @@ while not done:
             done = True
     if not done:
         stdout.write( "    Invalid response." )
+
+raw_input( "Press Enter to continue..." )
