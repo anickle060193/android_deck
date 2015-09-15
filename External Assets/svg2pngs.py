@@ -1,6 +1,10 @@
-from subprocess import call
 import os
 import shutil
+from subprocess import call
+from sys import stdout
+from distutils.dir_util import copy_tree
+
+DEFAULT_DPI = 160
 
 i_to_a = { "2"  : "two", 
            "3"  : "three",
@@ -12,13 +16,17 @@ i_to_a = { "2"  : "two",
            "9"  : "nine",
            "10" : "ten" };
 
+cardWidth = 90
+cardHeight = cardWidth * 3.5 / 2.5
+outputFolders = [ "/drawable-mdpi/",    "/drawable-hdpi/",  "/drawable-xhdpi/",     "/drawable-xxhdpi/"     ]
+outputDpis =    [ 160,                  240,                320,                    480                     ]
+
 cwd = os.getcwd()
 
 inputFolder = cwd + "/svg_cards/"
 outputFolder = cwd + "/export/"
-outputFolders = [ "/drawable-mdpi/", "/drawable-hdpi/", "/drawable-xhdpi/", "/drawable-xxhdpi/" ]
-cardSize = 100
-pixelSizes = [ cardSize * 160 / 160, cardSize * 240 / 160, cardSize * 320 / 160, cardSize * 480 / 160 ]
+resourceFolder = cwd + "/../app/src/main/res/"
+
 for d in outputFolders:
     if not os.path.isdir( outputFolder + d ):
         os.makedirs( outputFolder + d )
@@ -28,11 +36,33 @@ for filename in os.listdir( inputFolder ):
         newFilename = filename.replace( ".svg", ".png" )
         for key in i_to_a:
             newFilename = newFilename.replace( key, i_to_a[ key ] )
-        print filename, "\t->\t", newFilename
-        filename = inputFolder + filename
+        print filename, "    ->    ", newFilename
 
+        filename = inputFolder + filename
         for i in range( len( outputFolders ) ):
             outFile = outputFolder + outputFolders[ i ] + newFilename
-
-            call( 'C:\Program Files\Inkscape\inkscape.exe -f ' + filename + ' -e ' + outFile + ' -D -w ' + str( pixelSizes[ i ] ) )
-    break # For testing
+            width = cardWidth * outputDpis[ i ] / DEFAULT_DPI
+            height = cardHeight * outputDpis[ i ] / DEFAULT_DPI
+            stdout.write( "    " + outputFolders[ i ] + "..." )
+            ret = call( [ 'C:\Program Files\Inkscape\inkscape.exe', '-f', filename, '-e', outFile, '-D', '-w', str( width ), '-h', str( height ) ] )
+            if ret == 0:
+                stdout.write( "Success\n" )
+            else:
+                write( "Failure!\n" )
+                
+done = False
+while not done:
+    response = raw_input( "\nCopy to Android resource folder? (Y/N): " ).upper()
+    if len( response ) > 0:
+        if response[ 0 ] == "Y":
+            stdout.write( "    Copying..." )
+            ret = copy_tree( outputFolder, resourceFolder )
+            if ret:
+                stdout.write( "Success\n" )
+            else:
+                stdout.write( "Failure!\n" )
+            done = True
+        elif response[ 0 ] == "N":
+            done = True
+    if not done:
+        stdout.write( "    Invalid response." )
