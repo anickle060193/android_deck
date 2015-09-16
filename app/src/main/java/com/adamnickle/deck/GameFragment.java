@@ -50,7 +50,7 @@ public class GameFragment extends Fragment
                 @Override
                 public void onClick( View v )
                 {
-                    final PlayingCardView playingCardView = new PlayingCardView( getActivity() );
+                    final PlayingCardView playingCardView = new PlayingCardView( getActivity(), new Card() );
                     ( (ViewGroup)v ).addView( playingCardView );
                     mPlayingCardViews.add( playingCardView );
                 }
