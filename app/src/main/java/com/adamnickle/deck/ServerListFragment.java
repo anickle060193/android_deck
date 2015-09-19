@@ -38,7 +38,7 @@ public class ServerListFragment extends Fragment
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
 
-        mBluetoothFragment.registerBluetoothListener( mBluetoothListener );
+        mBluetoothFragment.registerBluetoothSearchListener( mSearchListener );
     }
 
     @Override
@@ -87,10 +87,10 @@ public class ServerListFragment extends Fragment
     {
         super.onDestroy();
 
-        mBluetoothFragment.unregisterBluetoothListener( mBluetoothListener );
+        mBluetoothFragment.unregisterBluetoothSearchListener( mSearchListener );
     }
 
-    private final BluetoothFragment.BluetoothListener mBluetoothListener = new BluetoothFragment.BluetoothListener()
+    private final BluetoothSearchListener mSearchListener = new BluetoothSearchListener()
     {
         @Override
         public void onDeviceFound( BluetoothDevice device )

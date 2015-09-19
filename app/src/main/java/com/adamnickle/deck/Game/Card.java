@@ -1,7 +1,13 @@
-package com.adamnickle.deck;
+package com.adamnickle.deck.Game;
 
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntRange;
+import android.util.JsonReader;
+import android.util.JsonWriter;
+
+import com.adamnickle.deck.R;
+
+import java.io.IOException;
 
 
 public class Card
@@ -71,5 +77,16 @@ public class Card
     public @DrawableRes int getResource()
     {
         return CARD_RESOURCES[ getSuit() ][ getRank() ];
+    }
+
+    public void writeToJson( JsonWriter writer ) throws IOException
+    {
+        writer.value( getCardId() );
+    }
+
+    public static Card readFromJson( JsonReader reader ) throws IOException
+    {
+        final int cardId = reader.nextInt();
+        return new Card( cardId );
     }
 }

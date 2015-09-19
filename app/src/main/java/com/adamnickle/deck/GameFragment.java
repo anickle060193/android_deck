@@ -1,12 +1,13 @@
 package com.adamnickle.deck;
 
-import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+
+import com.adamnickle.deck.Game.Card;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,12 +19,15 @@ public class GameFragment extends Fragment
     private BluetoothFragment mBluetoothFragment;
     private final List<PlayingCardView> mPlayingCardViews = new ArrayList<>();
 
+    private Client mClient;
+
     private int mOrientation;
 
     public static GameFragment newInstance( BluetoothFragment bluetoothFragment )
     {
         final GameFragment gameFragment = new GameFragment();
         gameFragment.mBluetoothFragment = bluetoothFragment;
+        gameFragment.mClient = new Client( gameFragment.mBluetoothFragment );
         return gameFragment;
     }
 
@@ -33,7 +37,7 @@ public class GameFragment extends Fragment
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
 
-        mBluetoothFragment.registerBluetoothListener( mListener );
+        mBluetoothFragment.registerBluetoothListener( mClient );
 
         mOrientation = getResources().getConfiguration().orientation;
     }
@@ -74,7 +78,7 @@ public class GameFragment extends Fragment
 
         if( mBluetoothFragment.isServer() )
         {
-            //ajn mBluetoothFragment.createServer();
+            mBluetoothFragment.createServer();
         }
     }
 
@@ -106,7 +110,7 @@ public class GameFragment extends Fragment
     {
         super.onDestroy();
 
-        mBluetoothFragment.unregisterBluetoothListener( mListener );
+        mBluetoothFragment.unregisterBluetoothListener( mClient );
         if( mBluetoothFragment.isServer() )
         {
             mBluetoothFragment.closeServer();
@@ -117,33 +121,8 @@ public class GameFragment extends Fragment
         }
     }
 
-    private final BluetoothFragment.BluetoothListener mListener = new BluetoothFragment.BluetoothListener()
+    public Client getClient()
     {
-        @Override
-        public void onDeviceConnect( BluetoothDevice device )
-        {
-            if( mBluetoothFragment.isServer() )
-            {
-                Deck.toast( "Device connected: %s", device.getName() );
-            }
-            else
-            {
-                Deck.toast( "Connected to server: %s", device.getName() );
-            }
-        }
-
-        @Override
-        public void onDeviceDisconnect( BluetoothDevice device )
-        {
-            if( mBluetoothFragment.isServer() )
-            {
-                Deck.toast( "Device disconnected: %s", device.getName() );
-            }
-            else
-            {
-                Deck.toast( "Disconnected from server: %s", device.getName() );
-                MainActivity.backToMenu( getActivity() );
-            }
-        }
-    };
+        return mClient;
+    }
 }

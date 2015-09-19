@@ -23,14 +23,6 @@ import java.util.UUID;
 
 public class BluetoothFragment extends Fragment
 {
-    abstract static class BluetoothListener
-    {
-        public void onDeviceFound( BluetoothDevice device ) { }
-        public void onDeviceConnect( BluetoothDevice device ) { }
-        public void onDeviceDisconnect( BluetoothDevice device ) { }
-        public void onDataReceived( BluetoothDevice device, byte[] data ) { }
-    }
-
     public static final String FRAGMENT_TAG = BluetoothFragment.class.getName();
 
     private static final int REQUEST_ENABLE_BT = 1001;
@@ -46,6 +38,7 @@ public class BluetoothFragment extends Fragment
     private AcceptThread mAcceptThread;
     private boolean mIsServer;
 
+    private final List<BluetoothSearchListener> mSearchListeners = new ArrayList<>();
     private final List<BluetoothListener> mListeners = new ArrayList<>();
 
     public static BluetoothFragment newInstance( boolean isServer )
@@ -83,6 +76,7 @@ public class BluetoothFragment extends Fragment
     {
         super.onDestroy();
 
+        MainActivity.setIndeterminateProgressVisibility( getActivity(), false );
         getActivity().unregisterReceiver( mReceiver );
         if( isServer() )
         {
@@ -141,7 +135,7 @@ public class BluetoothFragment extends Fragment
     {
         if( !mListeners.remove( listener ) )
         {
-            throw new IllegalStateException( "BluetoothListener " + listener + " was not registered." );
+            throw new IllegalStateException( "BluetoothListener " + listener + " was never registered." );
         }
     }
 
@@ -154,7 +148,7 @@ public class BluetoothFragment extends Fragment
             if( BluetoothDevice.ACTION_FOUND.equals( action ) )
             {
                 final BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
-                for( BluetoothListener listener : mListeners )
+                for( BluetoothSearchListener listener : mSearchListeners )
                 {
                     listener.onDeviceFound( device );
                 }
@@ -198,6 +192,23 @@ public class BluetoothFragment extends Fragment
             }
         }
     };
+
+    public void registerBluetoothSearchListener( BluetoothSearchListener listener )
+    {
+        if( mSearchListeners.contains( listener ) )
+        {
+            throw new IllegalStateException( "BluetoothSearchListener " + listener + " is already registered." );
+        }
+        mSearchListeners.add( listener );
+    }
+
+    public void unregisterBluetoothSearchListener( BluetoothSearchListener listener )
+    {
+        if( !mSearchListeners.remove( listener ) )
+        {
+            throw new IllegalStateException( "BluetoothSearchListener " + listener + " was never registered." );
+        }
+    }
 
     public void findDevices()
     {

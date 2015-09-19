@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import com.adamnickle.deck.Game.Card;
+
 
 @SuppressLint("ViewConstructor")
 public class PlayingCardView extends ImageView
