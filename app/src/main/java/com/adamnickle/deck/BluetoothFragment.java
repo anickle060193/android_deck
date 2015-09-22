@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,12 +35,12 @@ public class BluetoothFragment extends Fragment
 
     private final BluetoothAdapter mAdapter = BluetoothAdapter.getDefaultAdapter();
 
-    private final List<ConnectedThread> mConnectedThreads = new ArrayList<>();
+    private final HashMap<String, ConnectedThread> mConnectedThreads = new HashMap<>();
     private AcceptThread mAcceptThread;
     private boolean mIsServer;
+    private Messenger mMessenger;
 
     private final List<BluetoothSearchListener> mSearchListeners = new ArrayList<>();
-    private final List<BluetoothListener> mListeners = new ArrayList<>();
 
     public static BluetoothFragment newInstance( boolean isServer )
     {
@@ -69,6 +70,17 @@ public class BluetoothFragment extends Fragment
         filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
         filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
         getActivity().registerReceiver( mReceiver, filter );
+
+        mMessenger = new Messenger( this );
+
+        if( this.isServer() )
+        {
+            if( !this.createServer() )
+            {
+                MainActivity.backToMenu( getActivity() );
+                Deck.toast( "The server could not be opened." );
+            }
+        }
     }
 
     @Override
@@ -78,13 +90,14 @@ public class BluetoothFragment extends Fragment
 
         MainActivity.setIndeterminateProgressVisibility( getActivity(), false );
         getActivity().unregisterReceiver( mReceiver );
-        if( isServer() )
+
+        if( this.isServer() )
         {
-            closeServer();
+            this.closeServer();
         }
         else
         {
-            disconnect();
+            this.disconnect();
         }
     }
 
@@ -119,23 +132,6 @@ public class BluetoothFragment extends Fragment
         if( !mAdapter.isEnabled() )
         {
             startActivityForResult( new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE ), BluetoothFragment.REQUEST_ENABLE_BT );
-        }
-    }
-
-    public void registerBluetoothListener( BluetoothListener listener )
-    {
-        if( mListeners.contains( listener ) )
-        {
-            throw new IllegalStateException( "BluetoothListener " + listener + " is already registered." );
-        }
-        mListeners.add( listener );
-    }
-
-    public void unregisterBluetoothListener( BluetoothListener listener )
-    {
-        if( !mListeners.remove( listener ) )
-        {
-            throw new IllegalStateException( "BluetoothListener " + listener + " was never registered." );
         }
     }
 
@@ -210,21 +206,34 @@ public class BluetoothFragment extends Fragment
         }
     }
 
+    public Messenger getMessenger()
+    {
+        return mMessenger;
+    }
+
     public void findDevices()
     {
         mAdapter.startDiscovery();
     }
 
-    public void createServer()
+    public boolean createServer()
     {
-        closeServer();
+        try
+        {
+            closeServer();
+            mAcceptThread = new AcceptThread();
+            mAcceptThread.start();
 
-        mAcceptThread = new AcceptThread();
-        mAcceptThread.start();
-
-        final Intent intent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
-        //ajn intent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
-        startActivityForResult( intent, REQUEST_MAKE_DISCOVERABLE );
+            final Intent intent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
+            //ajn intent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
+            startActivityForResult( intent, REQUEST_MAKE_DISCOVERABLE );
+            return true;
+        }
+        catch( IOException ex )
+        {
+            Deck.log( "An error occurred while opening the server connection.", ex );
+        }
+        return false;
     }
 
     public void closeServer()
@@ -239,7 +248,7 @@ public class BluetoothFragment extends Fragment
 
     public void disconnect()
     {
-        for( ConnectedThread thread : mConnectedThreads )
+        for( ConnectedThread thread : mConnectedThreads.values() )
         {
             thread.cancel();
         }
@@ -248,13 +257,28 @@ public class BluetoothFragment extends Fragment
 
     public void connectToDevice( BluetoothDevice device )
     {
-        final ConnectThread thread = new ConnectThread( device );
-        thread.start();
+        try
+        {
+            new ConnectThread( device ).start();
+        }
+        catch( IOException ex )
+        {
+            Deck.log( "An error occurred while starting connecting.", ex );
+        }
     }
 
-    public void write( byte[] data )
+    public void writeToAll( byte[] data )
     {
-        for( ConnectedThread thread : mConnectedThreads )
+        for( ConnectedThread thread : mConnectedThreads.values() )
+        {
+            thread.write( data );
+        }
+    }
+
+    public void write( String address, byte[] data )
+    {
+        final ConnectedThread thread = mConnectedThreads.get( address );
+        if( thread != null )
         {
             thread.write( data );
         }
@@ -262,9 +286,28 @@ public class BluetoothFragment extends Fragment
 
     private void manageConnectedSocket( BluetoothSocket socket )
     {
-        final ConnectedThread thread = new ConnectedThread( socket );
-        mConnectedThreads.add( thread );
-        thread.start();
+        try
+        {
+            new ConnectedThread( socket ).start();
+        }
+        catch( IOException ex )
+        {
+            Deck.log( "An error occurred while opening a connection.", ex );
+        }
+    }
+
+    private void onDeviceConnected( ConnectedThread thread )
+    {
+        final BluetoothDevice device = thread.mSocket.getRemoteDevice();
+        mConnectedThreads.put( device.getAddress(), thread );
+        mMessenger.onDeviceConnect( device );
+    }
+
+    private void onDeviceDisconnected( ConnectedThread thread )
+    {
+        final BluetoothDevice device = thread.mSocket.getRemoteDevice();
+        mConnectedThreads.remove( device.getAddress() );
+        mMessenger.onDeviceDisconnect( device );
     }
 
     private class AcceptThread extends Thread
@@ -273,18 +316,9 @@ public class BluetoothFragment extends Fragment
 
         private boolean mCancelled = false;
 
-        public AcceptThread()
+        public AcceptThread() throws IOException
         {
-            BluetoothServerSocket temp = null;
-            try
-            {
-                temp = mAdapter.listenUsingRfcommWithServiceRecord( SERVICE_NAME, DECK_UUID );
-            }
-            catch( IOException ex )
-            {
-                Deck.log( "An error occurred while opening the server connection.", ex );
-            }
-            mServerSocket = temp;
+            mServerSocket = mAdapter.listenUsingRfcommWithServiceRecord( SERVICE_NAME, DECK_UUID );
         }
 
         @Override
@@ -322,22 +356,13 @@ public class BluetoothFragment extends Fragment
 
     private class ConnectThread extends Thread
     {
-        private final BluetoothSocket mSocket;
         private final BluetoothDevice mDevice;
+        private final BluetoothSocket mSocket;
 
-        public ConnectThread( BluetoothDevice device )
+        public ConnectThread( BluetoothDevice device ) throws IOException
         {
             mDevice = device;
-            BluetoothSocket temp = null;
-            try
-            {
-                temp = mDevice.createRfcommSocketToServiceRecord( DECK_UUID );
-            }
-            catch( IOException ex )
-            {
-                Deck.log( "An error occurred while starting connecting.", ex );
-            }
-            mSocket = temp;
+            mSocket = mDevice.createRfcommSocketToServiceRecord( DECK_UUID );
         }
 
         @Override
@@ -390,37 +415,24 @@ public class BluetoothFragment extends Fragment
     private class ConnectedThread extends Thread
     {
         private final BluetoothSocket mSocket;
+        private final BluetoothDevice mDevice;
+
         private final InputStream mInputStream;
         private final OutputStream mOutputStream;
 
-        public ConnectedThread( BluetoothSocket socket )
+        public ConnectedThread( BluetoothSocket socket ) throws IOException
         {
             mSocket = socket;
+            mDevice = mSocket.getRemoteDevice();
 
-            InputStream tempIn = null;
-            OutputStream tempOut = null;
-
-            try
-            {
-                tempIn = mSocket.getInputStream();
-                tempOut = mSocket.getOutputStream();
-            }
-            catch( IOException ex )
-            {
-                Deck.log( "An error occurred while opening a connection.", ex );
-            }
-
-            mInputStream = tempIn;
-            mOutputStream = tempOut;
+            mInputStream = mSocket.getInputStream();
+            mOutputStream = mSocket.getOutputStream();
         }
 
         @Override
         public void run()
         {
-            for( BluetoothListener listener : mListeners )
-            {
-                listener.onDeviceConnect( mSocket.getRemoteDevice() );
-            }
+            onDeviceConnected( this );
 
             final byte[] buffer = new byte[ 1024 ];
 
@@ -429,20 +441,14 @@ public class BluetoothFragment extends Fragment
                 try
                 {
                     final int bytes = mInputStream.read( buffer );
-
-                    for( BluetoothListener listener : mListeners )
-                    {
-                        final byte[] data = Arrays.copyOf( buffer, bytes );
-                        listener.onDataReceived( mSocket.getRemoteDevice(), data );
-                    }
+                    final byte[] data = Arrays.copyOf( buffer, bytes );
+                    mMessenger.onDataReceived( mDevice, data );
                 }
                 catch( IOException ex )
                 {
                     Deck.log( "An error occurred while reading from a connection.", ex );
-                    for( BluetoothListener listener : mListeners )
-                    {
-                        listener.onDeviceDisconnect( mSocket.getRemoteDevice() );
-                    }
+
+                    onDeviceDisconnected( this );
                     break;
                 }
             }

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deck.Game.Player;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,18 +17,15 @@ import java.util.List;
 public class GameFragment extends Fragment
 {
     private View mMainView;
-    private BluetoothFragment mBluetoothFragment;
+    private Messenger mMessenger;
     private final List<PlayingCardView> mPlayingCardViews = new ArrayList<>();
-
-    private Client mClient;
 
     private int mOrientation;
 
     public static GameFragment newInstance( BluetoothFragment bluetoothFragment )
     {
         final GameFragment gameFragment = new GameFragment();
-        gameFragment.mBluetoothFragment = bluetoothFragment;
-        gameFragment.mClient = new Client( gameFragment.mBluetoothFragment );
+        gameFragment.mMessenger = bluetoothFragment.getMessenger();
         return gameFragment;
     }
 
@@ -37,9 +35,9 @@ public class GameFragment extends Fragment
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
 
-        mBluetoothFragment.registerBluetoothListener( mClient );
-
         mOrientation = getResources().getConfiguration().orientation;
+
+        mMessenger.registerClient( mClient );
     }
 
     @Override
@@ -72,17 +70,6 @@ public class GameFragment extends Fragment
     }
 
     @Override
-    public void onStart()
-    {
-        super.onStart();
-
-        if( mBluetoothFragment.isServer() )
-        {
-            mBluetoothFragment.createServer();
-        }
-    }
-
-    @Override
     public void onResume()
     {
         super.onResume();
@@ -110,19 +97,21 @@ public class GameFragment extends Fragment
     {
         super.onDestroy();
 
-        mBluetoothFragment.unregisterBluetoothListener( mClient );
-        if( mBluetoothFragment.isServer() )
-        {
-            mBluetoothFragment.closeServer();
-        }
-        else
-        {
-            mBluetoothFragment.disconnect();
-        }
+        mMessenger.unregisterClient( mClient );
     }
 
-    public Client getClient()
+    private final Client mClient = new Client()
     {
-        return mClient;
-    }
+        @Override
+        public void onPlayerConnect( Player player )
+        {
+            Deck.toast( player.getName() + " has connected." );
+        }
+
+        @Override
+        public void onPlayerDisconnect( Player player )
+        {
+            Deck.toast( player.getName() + " has disconnected." );
+        }
+    };
 }

@@ -20,6 +20,16 @@ public class Player
         this.mAddress = address;
     }
 
+    public String getName()
+    {
+        return mName;
+    }
+
+    public String getAddress()
+    {
+        return mAddress;
+    }
+
     public void addCard( Card card )
     {
         mCards.add( card );
