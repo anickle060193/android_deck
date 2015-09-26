@@ -14,7 +14,7 @@ i_to_a = { "2"  : "two",
            "7"  : "seven",
            "8"  : "eight",
            "9"  : "nine",
-           "10" : "ten" };
+           "10" : "ten" }
 
 cardWidth = 90
 cardHeight = cardWidth * 3.5 / 2.5
@@ -23,7 +23,8 @@ outputDpis =    [ 160,                  240,                320,                
 
 cwd = os.getcwd()
 
-inputFolder = cwd + "/svg_cards/"
+inputFolderCards = cwd + "/svg_cards/"
+inputFolderBacks = cwd + "/backs/"
 outputFolder = cwd + "/export/"
 resourceFolder = cwd + "/../app/src/main/res/"
 
@@ -31,24 +32,27 @@ for d in outputFolders:
     if not os.path.isdir( outputFolder + d ):
         os.makedirs( outputFolder + d )
 
-for filename in os.listdir( inputFolder ):
-    if filename.endswith( ".svg" ):
-        newFilename = filename.replace( ".svg", ".png" )
-        for key in i_to_a:
-            newFilename = newFilename.replace( key, i_to_a[ key ] )
-        print filename, "    ->    ", newFilename
+for inputFolder in [ inputFolderCards, inputFolderBacks ]:
+    for filename in os.listdir( inputFolder ):
+        if filename.endswith( ".svg" ):
+            newFilename = filename.replace( ".svg", ".png" )
+            for key in i_to_a:
+                if newFilename.startswith( key ):
+                    newFilename = newFilename.replace( key, i_to_a[ key ], 1 )
+                    break
 
-        filename = inputFolder + filename
-        for i in range( len( outputFolders ) ):
-            outFile = outputFolder + outputFolders[ i ] + newFilename
-            width = cardWidth * outputDpis[ i ] / DEFAULT_DPI
-            height = cardHeight * outputDpis[ i ] / DEFAULT_DPI
-            stdout.write( "    " + outputFolders[ i ] + "..." )
-            ret = call( [ 'C:\Program Files\Inkscape\inkscape.exe', '-f', filename, '-e', outFile, '-C', '-w', str( width ), '-h', str( height ) ] )
-            if ret == 0:
-                stdout.write( "Success\n" )
-            else:
-                write( "Failure!\n" )
+            print filename, "    ->    ", newFilename
+            filename = inputFolder + filename
+            for i in range( len( outputFolders ) ):
+                outFile = outputFolder + outputFolders[ i ] + newFilename
+                width = cardWidth * outputDpis[ i ] / DEFAULT_DPI
+                height = cardHeight * outputDpis[ i ] / DEFAULT_DPI
+                stdout.write( "    " + outputFolders[ i ] + "..." )
+                ret = call( [ 'C:\Program Files\Inkscape\inkscape.exe', '-f', filename, '-e', outFile, '-C', '-w', str( width ), '-h', str( height ) ] )
+                if ret == 0:
+                    stdout.write( "Success\n" )
+                else:
+                    write( "Failure!\n" )
                 
 done = False
 while not done:
