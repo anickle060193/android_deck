@@ -49,6 +49,11 @@ public class BluetoothFragment extends Fragment
         return fragment;
     }
 
+    public BluetoothFragment()
+    {
+        mMessenger = new Messenger( this );
+    }
+
     @Override
     public void onCreate( Bundle savedInstanceState )
     {
@@ -70,8 +75,6 @@ public class BluetoothFragment extends Fragment
         filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
         filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
         getActivity().registerReceiver( mReceiver, filter );
-
-        mMessenger = new Messenger( this );
 
         if( this.isServer() )
         {
