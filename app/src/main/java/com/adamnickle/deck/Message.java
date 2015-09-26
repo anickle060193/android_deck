@@ -19,6 +19,7 @@ public class Message
     private enum Key
     {
         MessageType,
+        Sender,
         PlayerName,
         PlayerAddress,
         DestinationAddress
@@ -27,6 +28,7 @@ public class Message
     private final EnumMap<Key, Object> mMessageMap = new EnumMap<>( Key.class );
     private boolean mIsValid = true;
 
+    //region BLEH
     @SuppressWarnings( "unchecked" )
     private Message( byte[] data )
     {
@@ -59,8 +61,9 @@ public class Message
         }
     }
 
-    private Message( Type type )
+    private Message( String senderAddress, Type type )
     {
+        mMessageMap.put( Key.Sender, senderAddress );
         mMessageMap.put( Key.MessageType, type );
     }
 
@@ -105,20 +108,6 @@ public class Message
         return (String)mMessageMap.get( Key.DestinationAddress );
     }
 
-    public static Message playerConnected( String playerName, String playerAddress )
-    {
-        return new Message( Type.PlayerConnected )
-                .set( Key.PlayerName, playerName )
-                .set( Key.PlayerAddress, playerAddress );
-    }
-
-    public static Message playerDisconnected( String playerName, String playerAddress )
-    {
-        return new Message( Type.PlayerDisconnected )
-                .set( Key.PlayerName, playerName )
-                .set( Key.PlayerAddress, playerAddress );
-    }
-
     public byte[] toBytes()
     {
         ObjectOutputStream output = null;
@@ -154,5 +143,20 @@ public class Message
     public static Message fromBytes( byte[] data )
     {
         return new Message( data );
+    }
+    //endregion
+
+    public static Message playerConnected( String deviceAddress, String playerName )
+    {
+        return new Message( deviceAddress, Type.PlayerConnected )
+                .set( Key.PlayerName, playerName )
+                .set( Key.PlayerAddress, deviceAddress );
+    }
+
+    public static Message playerDisconnected( String deviceAddress, String playerName )
+    {
+        return new Message( deviceAddress, Type.PlayerDisconnected )
+                .set( Key.PlayerName, playerName )
+                .set( Key.PlayerAddress, deviceAddress );
     }
 }

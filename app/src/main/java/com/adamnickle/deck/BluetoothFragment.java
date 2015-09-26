@@ -122,6 +122,11 @@ public class BluetoothFragment extends Fragment
         }
     }
 
+    public BluetoothAdapter getAdapter()
+    {
+        return mAdapter;
+    }
+
     public boolean isServer()
     {
         return mIsServer;
@@ -269,9 +274,20 @@ public class BluetoothFragment extends Fragment
 
     public void writeToAll( byte[] data )
     {
-        for( ConnectedThread thread : mConnectedThreads.values() )
+        for( String addressKey : mConnectedThreads.keySet() )
         {
-            thread.write( data );
+            this.write( addressKey, data );
+        }
+    }
+
+    public void writeToAllExcept( byte[] data, String address )
+    {
+        for( String addressKey : mConnectedThreads.keySet() )
+        {
+            if( !addressKey.equals( address ) )
+            {
+                this.write( addressKey, data );
+            }
         }
     }
 

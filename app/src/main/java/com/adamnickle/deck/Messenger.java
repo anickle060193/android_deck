@@ -22,7 +22,7 @@ public class Messenger extends BluetoothListener
     {
         if( mBluetoothFragment.isServer() )
         {
-            final Message message = Message.playerConnected( device.getName(), device.getAddress() );
+            final Message message = Message.playerConnected( device.getAddress(), device.getName() );
             mBluetoothFragment.writeToAll( message.toBytes() );
 
             onMessageReceived( message );
@@ -34,7 +34,7 @@ public class Messenger extends BluetoothListener
     {
         if( mBluetoothFragment.isServer() )
         {
-            final Message message = Message.playerDisconnected( device.getName(), device.getAddress() );
+            final Message message = Message.playerDisconnected( device.getAddress(), device.getName() );
             mBluetoothFragment.writeToAll( message.toBytes() );
 
             onMessageReceived( message );
