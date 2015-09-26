@@ -25,21 +25,61 @@ public class Message
         DestinationAddress
     }
 
-    private final EnumMap<Key, Object> mMessageMap = new EnumMap<>( Key.class );
-    private boolean mIsValid = true;
+    private EnumMap<Key, Object> mMessageMap = new EnumMap<>( Key.class );
+    private boolean mIsValid;
 
-    //region BLEH
-    @SuppressWarnings( "unchecked" )
-    private Message( byte[] data )
+    //region Byte Stuff
+    private Message()
     {
         mIsValid = false;
+    }
+
+    public byte[] toBytes()
+    {
+        ObjectOutputStream output = null;
+        try
+        {
+            final ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
+            output = new ObjectOutputStream( byteOutput );
+            output.writeObject( mMessageMap );
+            output.flush();
+            return byteOutput.toByteArray();
+        }
+        catch( IOException ex )
+        {
+            Deck.log( "An error occurred while serializing the message.", ex );
+        }
+        finally
+        {
+            if( output != null )
+            {
+                try
+                {
+                    output.close();
+                }
+                catch( IOException closingEx )
+                {
+                    Deck.log( "An error occurred while closing the message output stream.", closingEx );
+                }
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings( "unchecked" )
+    public static Message fromBytes( byte[] data )
+    {
         ObjectInputStream input = null;
         try
         {
             final ByteArrayInputStream byteInput = new ByteArrayInputStream( data );
             input = new ObjectInputStream( byteInput );
-            mMessageMap.putAll( (EnumMap<Key, Object>)input.readObject() );
-            mIsValid = true;
+            final EnumMap<Key, Object> map = (EnumMap<Key, Object>)input.readObject();
+
+            final Message message = new Message();
+            message.mMessageMap = map;
+            message.mIsValid = true;
+            return message;
         }
         catch( IOException | ClassNotFoundException ex )
         {
@@ -59,12 +99,15 @@ public class Message
                 }
             }
         }
+        return null;
     }
+    //endregion
 
     private Message( String senderAddress, Type type )
     {
         mMessageMap.put( Key.Sender, senderAddress );
         mMessageMap.put( Key.MessageType, type );
+        mIsValid = true;
     }
 
     private Message set( Key key, Object value )
@@ -108,44 +151,9 @@ public class Message
         return (String)mMessageMap.get( Key.DestinationAddress );
     }
 
-    public byte[] toBytes()
-    {
-        ObjectOutputStream output = null;
-        try
-        {
-            final ByteArrayOutputStream byteOutput = new ByteArrayOutputStream();
-            output = new ObjectOutputStream( byteOutput );
-            output.writeObject( this );
-            output.flush();
-            return byteOutput.toByteArray();
-        }
-        catch( IOException ex )
-        {
-            Deck.log( "An error occurred while serializing the message.", ex );
-        }
-        finally
-        {
-            if( output != null )
-            {
-                try
-                {
-                    output.close();
-                }
-                catch( IOException closingEx )
-                {
-                    Deck.log( "An error occurred while closing the message output stream.", closingEx );
-                }
-            }
-        }
-        return null;
-    }
-
-    public static Message fromBytes( byte[] data )
-    {
-        return new Message( data );
-    }
-    //endregion
-
+    /***************************************
+    * Message Creators
+    ***************************************/
     public static Message playerConnected( String deviceAddress, String playerName )
     {
         return new Message( deviceAddress, Type.PlayerConnected )

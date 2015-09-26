@@ -45,7 +45,7 @@ public class Messenger extends BluetoothListener
     public void onDataReceived( BluetoothDevice device, byte[] data )
     {
         final Message message = Message.fromBytes( data );
-        if( message.isValid() )
+        if( message != null && message.isValid() )
         {
             this.onMessageReceived( message );
         }

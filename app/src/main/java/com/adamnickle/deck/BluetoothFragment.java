@@ -475,6 +475,10 @@ public class BluetoothFragment extends Fragment
 
         public void write( byte[] bytes )
         {
+            if( bytes == null )
+            {
+                return;
+            }
             try
             {
                 mOutputStream.write( bytes );
