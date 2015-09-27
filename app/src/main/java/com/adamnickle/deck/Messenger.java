@@ -8,46 +8,85 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Messenger extends BluetoothListener
+public class Messenger
 {
+    public static final String ALL_ADDRESSES = BuildConfig.APPLICATION_ID + ".all_addresses";
+
     private final List<Client> mClients = new ArrayList<>();
+    private final BluetoothFragment mBluetoothFragment;
+    private final String mAddress;
 
     public Messenger( BluetoothFragment fragment )
     {
-        super( fragment );
+        mBluetoothFragment = fragment;
+        mAddress = mBluetoothFragment.getAdapter().getAddress();
     }
 
-    @Override
+    public void registerClient( Client client )
+    {
+        if( mClients.contains( client ) )
+        {
+            throw new IllegalStateException( "Client " + client + " is already registered." );
+        }
+        mClients.add( client );
+    }
+
+    public void unregisterClient( Client client )
+    {
+        if( !mClients.remove( client ) )
+        {
+            throw new IllegalStateException( "Client " + client + " was never registered." );
+        }
+    }
+
     public void onDeviceConnect( BluetoothDevice device )
     {
         if( mBluetoothFragment.isServer() )
         {
-            final Message message = Message.playerConnected( device.getAddress(), device.getName() );
-            mBluetoothFragment.writeToAll( message.toBytes() );
+            final Message message = Message.playerConnected( ALL_ADDRESSES, device.getAddress(), device.getName() );
+            mBluetoothFragment.sendToAllExcept( message.toBytes(), device.getAddress() );
 
             onMessageReceived( message );
         }
     }
 
-    @Override
     public void onDeviceDisconnect( BluetoothDevice device )
     {
         if( mBluetoothFragment.isServer() )
         {
-            final Message message = Message.playerDisconnected( device.getAddress(), device.getName() );
-            mBluetoothFragment.writeToAll( message.toBytes() );
+            final Message message = Message.playerDisconnected( ALL_ADDRESSES, device.getAddress(), device.getName() );
+            mBluetoothFragment.sendToAllExcept( message.toBytes(), device.getAddress() );
 
             onMessageReceived( message );
         }
     }
 
-    @Override
-    public void onDataReceived( BluetoothDevice device, byte[] data )
+    public void onDataReceived( byte[] data )
     {
         final Message message = Message.fromBytes( data );
         if( message != null && message.isValid() )
         {
-            this.onMessageReceived( message );
+            final String destination = message.destination();
+            if( mBluetoothFragment.isServer() )
+            {
+                if( ALL_ADDRESSES.equals( destination ) )
+                {
+                    mBluetoothFragment.sendToAllExcept( data, message.sender() );
+
+                    this.onMessageReceived( message );
+                }
+                else
+                {
+                    mBluetoothFragment.sendTo( message.destination(), data );
+                }
+            }
+            else
+            {
+                if( ALL_ADDRESSES.equals( destination ) || mAddress.equals( destination ) )
+                {
+                    this.onMessageReceived( message );
+                }
+            }
         }
     }
 
@@ -78,23 +117,6 @@ public class Messenger extends BluetoothListener
                 }
                 break;
             }
-        }
-    }
-
-    public void registerClient( Client client )
-    {
-        if( mClients.contains( client ) )
-        {
-            throw new IllegalStateException( "Client " + client + " is already registered." );
-        }
-        mClients.add( client );
-    }
-
-    public void unregisterClient( Client client )
-    {
-        if( !mClients.remove( client ) )
-        {
-            throw new IllegalStateException( "Client " + client + " was never registered." );
         }
     }
 }

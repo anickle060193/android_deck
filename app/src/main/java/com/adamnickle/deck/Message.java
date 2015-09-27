@@ -20,9 +20,9 @@ public class Message
     {
         MessageType,
         Sender,
-        PlayerName,
-        PlayerAddress,
-        DestinationAddress
+        DeviceName,
+        DeviceAddress,
+        Destination
     }
 
     private EnumMap<Key, Object> mMessageMap = new EnumMap<>( Key.class );
@@ -103,9 +103,10 @@ public class Message
     }
     //endregion
 
-    private Message( String senderAddress, Type type )
+    private Message( String senderAddress, String destinationAddress, Type type )
     {
         mMessageMap.put( Key.Sender, senderAddress );
+        mMessageMap.put( Key.Destination, destinationAddress );
         mMessageMap.put( Key.MessageType, type );
         mIsValid = true;
     }
@@ -114,11 +115,6 @@ public class Message
     {
         mMessageMap.put( key, value );
         return this;
-    }
-
-    public Message setDestination( String address )
-    {
-        return set( Key.DestinationAddress, address );
     }
 
     public boolean isValid()
@@ -133,38 +129,38 @@ public class Message
 
     public String deviceName()
     {
-        return (String)mMessageMap.get( Key.PlayerName );
+        return (String)mMessageMap.get( Key.DeviceName );
     }
 
     public String deviceAddress()
     {
-        return (String)mMessageMap.get( Key.PlayerAddress );
+        return (String)mMessageMap.get( Key.DeviceAddress );
     }
 
-    public boolean hasDestination()
+    public String sender()
     {
-        return mMessageMap.containsKey( Key.DestinationAddress );
+        return (String)mMessageMap.get( Key.Sender );
     }
 
     public String destination()
     {
-        return (String)mMessageMap.get( Key.DestinationAddress );
+        return (String)mMessageMap.get( Key.Destination );
     }
 
     /***************************************
     * Message Creators
     ***************************************/
-    public static Message playerConnected( String deviceAddress, String playerName )
+    public static Message playerConnected( String destinationAddress, String deviceAddress, String playerName )
     {
-        return new Message( deviceAddress, Type.PlayerConnected )
-                .set( Key.PlayerName, playerName )
-                .set( Key.PlayerAddress, deviceAddress );
+        return new Message( deviceAddress, destinationAddress, Type.PlayerConnected )
+                .set( Key.DeviceName, playerName )
+                .set( Key.DeviceAddress, deviceAddress );
     }
 
-    public static Message playerDisconnected( String deviceAddress, String playerName )
+    public static Message playerDisconnected( String destinationAddress, String deviceAddress, String playerName )
     {
-        return new Message( deviceAddress, Type.PlayerDisconnected )
-                .set( Key.PlayerName, playerName )
-                .set( Key.PlayerAddress, deviceAddress );
+        return new Message( deviceAddress, destinationAddress, Type.PlayerDisconnected )
+                .set( Key.DeviceName, playerName )
+                .set( Key.DeviceAddress, deviceAddress );
     }
 }

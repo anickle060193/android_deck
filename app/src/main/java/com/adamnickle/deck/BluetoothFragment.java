@@ -36,9 +36,9 @@ public class BluetoothFragment extends Fragment
     private final BluetoothAdapter mAdapter = BluetoothAdapter.getDefaultAdapter();
 
     private final HashMap<String, ConnectedThread> mConnectedThreads = new HashMap<>();
+    private final Messenger mMessenger;
     private AcceptThread mAcceptThread;
     private boolean mIsServer;
-    private Messenger mMessenger;
 
     private final List<BluetoothSearchListener> mSearchListeners = new ArrayList<>();
 
@@ -233,7 +233,7 @@ public class BluetoothFragment extends Fragment
             mAcceptThread.start();
 
             final Intent intent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
-            //ajn intent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
+            intent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
             startActivityForResult( intent, REQUEST_MAKE_DISCOVERABLE );
             return true;
         }
@@ -275,26 +275,26 @@ public class BluetoothFragment extends Fragment
         }
     }
 
-    public void writeToAll( byte[] data )
+    public void sendToAll( byte[] data )
     {
         for( String addressKey : mConnectedThreads.keySet() )
         {
-            this.write( addressKey, data );
+            this.sendTo( addressKey, data );
         }
     }
 
-    public void writeToAllExcept( byte[] data, String address )
+    public void sendToAllExcept( byte[] data, String address )
     {
         for( String addressKey : mConnectedThreads.keySet() )
         {
             if( !addressKey.equals( address ) )
             {
-                this.write( addressKey, data );
+                this.sendTo( addressKey, data );
             }
         }
     }
 
-    public void write( String address, byte[] data )
+    public void sendTo( String address, byte[] data )
     {
         final ConnectedThread thread = mConnectedThreads.get( address );
         if( thread != null )
@@ -461,7 +461,7 @@ public class BluetoothFragment extends Fragment
                 {
                     final int bytes = mInputStream.read( buffer );
                     final byte[] data = Arrays.copyOf( buffer, bytes );
-                    mMessenger.onDataReceived( mDevice, data );
+                    mMessenger.onDataReceived( data );
                 }
                 catch( IOException ex )
                 {
