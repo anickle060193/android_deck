@@ -3,16 +3,20 @@ package com.adamnickle.deck.Game;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.adamnickle.deck.MyCollections;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Player
 {
     private final String mName;
     private final String mAddress;
-    private final CardCollection mCards;
+    private final List<Card> mCards;
 
-    private Player( String name, String address, CardCollection collection )
+    private Player( String name, String address, List<Card> collection )
     {
         mName = name;
         mAddress = address;
@@ -21,7 +25,23 @@ public class Player
 
     public Player( String name, String address )
     {
-        this( name, address, new CardCollection() );
+        this( name, address, new ArrayList<Card>() );
+    }
+
+    public void update( Player updatedPlayer )
+    {
+        final List<Card> addedCards = new ArrayList<>();
+        final List<Card> removedCards = new ArrayList<>();
+        MyCollections.diff( mCards, updatedPlayer.mCards, addedCards, removedCards );
+
+        for( Card card : removedCards )
+        {
+            removeCard( card );
+        }
+        for( Card card : addedCards )
+        {
+            addCard( card );
+        }
     }
 
     public String getName()
@@ -51,8 +71,12 @@ public class Player
         writer.name( "name" ).value( mName );
         writer.name( "address" ).value( mAddress );
 
-        writer.name( "cards" );
-        mCards.writeToJson( writer );
+        writer.name( "cards" ).beginArray();
+        for( Card card : mCards )
+        {
+            card.writeToJson( writer );
+        }
+        writer.endArray();
 
         writer.endObject();
     }
@@ -61,7 +85,7 @@ public class Player
     {
         String name = null;
         String address = null;
-        CardCollection collection = null;
+        final List<Card> cards = new ArrayList<>();
 
         reader.beginObject();
         while( reader.hasNext() )
@@ -77,7 +101,12 @@ public class Player
             }
             else if( "cards".equals( jsonName ) )
             {
-                collection = CardCollection.readFromJson( reader );
+                reader.beginArray();
+                while( reader.hasNext() )
+                {
+                    final Card card = Card.readFromJson( reader );
+                    cards.add( card );
+                }
             }
             else
             {
@@ -86,6 +115,6 @@ public class Player
         }
         reader.endObject();
 
-        return new Player( name, address, collection );
+        return new Player( name, address, cards );
     }
 }

@@ -3,24 +3,26 @@ package com.adamnickle.deck.Game;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.adamnickle.deck.MyCollections;
+
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 
 
 public class Game
 {
-    private final HashSet<Player> mPlayers = new HashSet<>();
+    private final HashMap<String, Player> mPlayers = new HashMap<>();
 
     public void addPlayer( Player player )
     {
-        mPlayers.add( player );
+        mPlayers.put( player.getAddress(), player );
     }
 
     public void removePlayer( Player player )
     {
-        mPlayers.remove( player );
+        mPlayers.remove( player.getAddress() );
     }
 
     public int getPlayerCount()
@@ -28,9 +30,30 @@ public class Game
         return mPlayers.size();
     }
 
-    public List<Player> getPlayers()
+    public Collection<Player> getPlayers()
     {
-        return new ArrayList<>( mPlayers );
+        return mPlayers.values();
+    }
+
+    public void update( Game updatedGame )
+    {
+        final HashSet<Player> addedPlayers = new HashSet<>();
+        final HashSet<Player> removedPlayers = new HashSet<>();
+        MyCollections.diff( mPlayers.values(), updatedGame.mPlayers.values(), addedPlayers, removedPlayers );
+
+        for( Player removed : removedPlayers )
+        {
+            removePlayer( removed );
+        }
+        for( Player added : addedPlayers )
+        {
+            addPlayer( added );
+        }
+
+        for( Player player : mPlayers.values() )
+        {
+            player.update( updatedGame.mPlayers.get( player.getAddress() ) );
+        }
     }
 
     public void writeToJson( JsonWriter writer ) throws IOException
@@ -38,7 +61,7 @@ public class Game
         writer.beginObject();
 
         writer.name( "players" ).beginArray();
-        for( Player player : mPlayers )
+        for( Player player : mPlayers.values() )
         {
             player.writeToJson( writer );
         }
@@ -49,7 +72,7 @@ public class Game
 
     public static Game readFromJson( JsonReader reader ) throws IOException
     {
-        List<Player> players = new ArrayList<>();
+        final Game game = new Game();
 
         reader.beginObject();
         while( reader.hasNext() )
@@ -60,7 +83,8 @@ public class Game
                 reader.beginArray();
                 while( reader.hasNext() )
                 {
-                    players.add( Player.readFromJson( reader ) );
+                    final Player player = Player.readFromJson( reader );
+                    game.addPlayer( player );
                 }
                 reader.endObject();
             }
@@ -71,8 +95,6 @@ public class Game
         }
         reader.endObject();
 
-        final Game game = new Game();
-        game.mPlayers.addAll( players );
         return game;
     }
 }

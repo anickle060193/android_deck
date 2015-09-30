@@ -17,9 +17,7 @@ public class CardCollection extends ArrayList<Card>
     public interface CardCollectionListener
     {
         void onCardAdded( Card card );
-        void onCardsAdded( Collection<? extends Card> cards );
         void onCardRemoved( Card card );
-        void onCardsRemoved( Collection<? extends Card> cards );
         void onCardCollectionChanged();
     }
 
@@ -50,27 +48,11 @@ public class CardCollection extends ArrayList<Card>
         }
     }
 
-    protected void onCardsAdded( Collection<? extends Card> cards )
-    {
-        for( CardCollectionListener listener : mListeners )
-        {
-            listener.onCardsAdded( cards );
-        }
-    }
-
     protected void onCardRemoved( Card card )
     {
         for( CardCollectionListener listener : mListeners )
         {
             listener.onCardRemoved( card );
-        }
-    }
-
-    protected void onCardsRemoved( Collection<? extends Card> cards )
-    {
-        for( CardCollectionListener listener : mListeners )
-        {
-            listener.onCardsRemoved( cards );
         }
     }
 
@@ -85,12 +67,8 @@ public class CardCollection extends ArrayList<Card>
     @Override
     public boolean add( Card card )
     {
-        final boolean ret = super.add( card );
-        if( ret )
-        {
-            onCardAdded( card );
-        }
-        return ret;
+        this.add( size(), card );
+        return true;
     }
 
     @Override
@@ -103,12 +81,7 @@ public class CardCollection extends ArrayList<Card>
     @Override
     public boolean addAll( Collection<? extends Card> cards )
     {
-        final boolean ret = super.addAll( cards );
-        if( ret )
-        {
-            onCardsAdded( cards );
-        }
-        return ret;
+        return this.addAll( size(), cards );
     }
 
     @Override
@@ -117,7 +90,10 @@ public class CardCollection extends ArrayList<Card>
         final boolean ret = super.addAll( index, cards );
         if( ret )
         {
-            onCardsAdded( cards );
+            for( Card card : cards )
+            {
+                onCardAdded( card );
+            }
         }
         return ret;
     }
@@ -182,7 +158,10 @@ public class CardCollection extends ArrayList<Card>
         if( ret )
         {
             //noinspection unchecked
-            onCardsRemoved( (Collection<? extends Card>)collection );
+            for( Card card : (Collection<Card>)collection )
+            {
+                onCardRemoved( card );
+            }
         }
         return ret;
     }
