@@ -12,9 +12,14 @@ import java.io.IOException;
 
 public class Card
 {
-    private static final int SUITS = 4;
-    private static final int RANKS = 13;
-    private static final int COUNT = SUITS * RANKS;
+    public static final int SUITS = 4;
+    public static final int RANKS = 13;
+    public static final int COUNT = SUITS * RANKS;
+
+    public static final int SPADES = 0;
+    public static final int HEARTS = 1;
+    public static final int CLUBS = 2;
+    public static final int DIAMONDS = 3;
 
     private static final int[][] CARD_RESOURCES = new int[][]
     {

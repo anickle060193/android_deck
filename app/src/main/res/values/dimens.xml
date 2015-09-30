@@ -5,4 +5,6 @@
 
     <dimen name="card_width">90dp</dimen>
     <dimen name="card_height">126dp</dimen>
+
+    <dimen name="card_holder_margin">16dp</dimen>
 </resources>

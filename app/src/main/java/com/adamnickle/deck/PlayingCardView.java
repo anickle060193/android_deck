@@ -46,6 +46,11 @@ public class PlayingCardView extends ImageView
         mDetector = new GestureDetectorCompat( getContext(), mDetectorListener );
     }
 
+    public Card getCard()
+    {
+        return mCard;
+    }
+
     public void setBounceOnWalls( boolean bounceOnWalls )
     {
         mBounceOnWalls = bounceOnWalls;

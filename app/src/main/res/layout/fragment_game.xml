@@ -1,9 +1,10 @@
-<FrameLayout
+<com.adamnickle.deck.Game.CardTableLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.adamnickle.deck.GameFragment">
+    tools:context="com.adamnickle.deck.GameFragment"
+    android:id="@+id/cardTable">
 
     <TextView
         android:layout_width="match_parent"
@@ -11,4 +12,4 @@
         android:gravity="center"
         android:text="I'm a game!"/>
 
-</FrameLayout>
+</com.adamnickle.deck.Game.CardTableLayout>

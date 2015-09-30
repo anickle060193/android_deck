@@ -5,16 +5,32 @@ import android.util.JsonWriter;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 
 public class Game
 {
-    private final List<Player> mPlayers = new ArrayList<>();
+    private final HashSet<Player> mPlayers = new HashSet<>();
 
     public void addPlayer( Player player )
     {
         mPlayers.add( player );
+    }
+
+    public void removePlayer( Player player )
+    {
+        mPlayers.remove( player );
+    }
+
+    public int getPlayerCount()
+    {
+        return mPlayers.size();
+    }
+
+    public List<Player> getPlayers()
+    {
+        return new ArrayList<>( mPlayers );
     }
 
     public void writeToJson( JsonWriter writer ) throws IOException

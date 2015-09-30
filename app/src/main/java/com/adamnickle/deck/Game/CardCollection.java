@@ -7,6 +7,7 @@ import android.util.JsonWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -37,15 +38,7 @@ public class CardCollection extends ArrayList<Card>
 
     public void shuffle()
     {
-        final int size = size();
-        for( int i = 0; i < size; i++ )
-        {
-            final int randomIndex = rand.nextInt( size );
-            final Card c = get( i );
-            this.set( i, get( randomIndex ) );
-            this.set( randomIndex, c );
-        }
-
+        Collections.shuffle( this );
         onCardCollectionChanged();
     }
 
