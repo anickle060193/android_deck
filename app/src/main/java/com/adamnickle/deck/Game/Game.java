@@ -3,16 +3,25 @@ package com.adamnickle.deck.Game;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.adamnickle.deck.Deck;
+import com.adamnickle.deck.Listenable;
 import com.adamnickle.deck.MyCollections;
 
 import java.io.IOException;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 
 
-public class Game
+public class Game extends Listenable<Game.GameListener>
 {
+    public interface GameListener
+    {
+        void onPlayerAdded( Player player );
+        void onPlayerRemoved( Player player );
+    }
+
     private final HashMap<String, Player> mPlayers = new HashMap<>();
 
     public void addPlayer( Player player )
@@ -30,9 +39,9 @@ public class Game
         return mPlayers.size();
     }
 
-    public Collection<Player> getPlayers()
+    public List<Player> getPlayers()
     {
-        return mPlayers.values();
+        return new ArrayList<>( mPlayers.values() );
     }
 
     public void update( Game updatedGame )

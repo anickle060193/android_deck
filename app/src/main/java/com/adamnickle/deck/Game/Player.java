@@ -3,6 +3,7 @@ package com.adamnickle.deck.Game;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.adamnickle.deck.Listenable;
 import com.adamnickle.deck.MyCollections;
 
 import java.io.IOException;
@@ -10,8 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Player
+public class Player extends Listenable<Player.PlayerListener>
 {
+    public interface PlayerListener
+    {
+        void onCardAdded( Card card );
+        void onCardRemoved( Card card );
+    }
+
     private final String mName;
     private final String mAddress;
     private final List<Card> mCards;
@@ -57,11 +64,21 @@ public class Player
     public void addCard( Card card )
     {
         mCards.add( card );
+
+        for( PlayerListener listener : getListeners() )
+        {
+            listener.onCardAdded( card );
+        }
     }
 
     public void removeCard( Card card )
     {
         mCards.remove( card );
+
+        for( PlayerListener listener : getListeners() )
+        {
+            listener.onCardRemoved( card );
+        }
     }
 
     public void writeToJson( JsonWriter writer ) throws IOException
