@@ -461,7 +461,7 @@ public class BluetoothFragment extends Fragment
                 {
                     final int bytes = mInputStream.read( buffer );
                     final byte[] data = Arrays.copyOf( buffer, bytes );
-                    mMessenger.onDataReceived( data );
+                    mMessenger.onDataReceived( mDevice, data );
                 }
                 catch( IOException ex )
                 {

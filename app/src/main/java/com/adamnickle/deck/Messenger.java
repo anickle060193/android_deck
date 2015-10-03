@@ -1,52 +1,69 @@
 package com.adamnickle.deck;
 
 import android.bluetooth.BluetoothDevice;
+import android.util.JsonReader;
+import android.util.JsonWriter;
 
+import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deck.Game.Game;
 import com.adamnickle.deck.Game.Player;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 
 public class Messenger
 {
     public static final String ALL_ADDRESSES = BuildConfig.APPLICATION_ID + ".all_addresses";
 
-    private final List<Client> mClients = new ArrayList<>();
     private final BluetoothFragment mBluetoothFragment;
     private final String mAddress;
+
+    private final Game mGame = new Game();
+
+    private boolean mListening = true;
 
     public Messenger( BluetoothFragment fragment )
     {
         mBluetoothFragment = fragment;
         mAddress = mBluetoothFragment.getAdapter().getAddress();
+
+        mGame.registerListener( new Game.GameListener()
+        {
+            @Override
+            public void onPlayerAdded( Game game, Player player )
+            {
+                player.registerListener( mPlayerListener );
+            }
+
+            @Override
+            public void onPlayerRemoved( Game game, Player player )
+            {
+                player.unregisterListener( mPlayerListener );
+            }
+        } );
     }
 
-    public void registerClient( Client client )
+    public String getThisAddress()
     {
-        if( mClients.contains( client ) )
-        {
-            throw new IllegalStateException( "Client " + client + " is already registered." );
-        }
-        mClients.add( client );
+        return mAddress;
     }
 
-    public void unregisterClient( Client client )
+    public Game getGame()
     {
-        if( !mClients.remove( client ) )
-        {
-            throw new IllegalStateException( "Client " + client + " was never registered." );
-        }
+        return mGame;
     }
 
     public void onDeviceConnect( BluetoothDevice device )
     {
         if( mBluetoothFragment.isServer() )
         {
-            final Message message = Message.playerConnected( ALL_ADDRESSES, device.getAddress(), device.getName() );
-            mBluetoothFragment.sendToAllExcept( message.toBytes(), device.getAddress() );
-
-            onMessageReceived( message );
+            final Player player = new Player( device.getName(), device.getAddress() );
+            mGame.addPlayer( player );
+            sendUpdatedGame( null );
         }
     }
 
@@ -54,69 +71,104 @@ public class Messenger
     {
         if( mBluetoothFragment.isServer() )
         {
-            final Message message = Message.playerDisconnected( ALL_ADDRESSES, device.getAddress(), device.getName() );
-            mBluetoothFragment.sendToAllExcept( message.toBytes(), device.getAddress() );
-
-            onMessageReceived( message );
+            final Player player = new Player( device.getName(), device.getAddress() );
+            mGame.removePlayer( player );
+            sendUpdatedGame( null );
         }
     }
 
-    public void onDataReceived( byte[] data )
+    public void onDataReceived( BluetoothDevice device, byte[] data )
     {
-        final Message message = Message.fromBytes( data );
-        if( message != null && message.isValid() )
+        final ByteArrayInputStream input = new ByteArrayInputStream( data );
+        final InputStreamReader inputReader = new InputStreamReader( input );
+        final JsonReader reader = new JsonReader( inputReader );
+        try
         {
-            final String destination = message.destination();
-            if( mBluetoothFragment.isServer() )
+            final Game updatedGame = Game.readFromJson( reader );
+            if( updatedGame != null )
             {
-                if( ALL_ADDRESSES.equals( destination ) )
-                {
-                    mBluetoothFragment.sendToAllExcept( data, message.sender() );
+                mListening = false;
+                mGame.update( updatedGame );
+                mListening = true;
 
-                    this.onMessageReceived( message );
-                }
-                else
+                if( mBluetoothFragment.isServer() )
                 {
-                    mBluetoothFragment.sendTo( message.destination(), data );
+                    sendUpdatedGame( device.getAddress() );
                 }
+            }
+        }
+        catch( IOException ex )
+        {
+            Deck.debugToast( "An error occurred reading updated Game.", ex );
+        }
+        finally
+        {
+            try
+            {
+                reader.close();
+            }
+            catch( IOException ex )
+            {
+                Deck.debugToast( "An error occurred closing the JSON Reader", ex );
+            }
+        }
+    }
+
+    private void sendUpdatedGame( String exceptAddress )
+    {
+        final ByteArrayOutputStream output = new ByteArrayOutputStream();
+        final OutputStreamWriter outputWriter = new OutputStreamWriter( output );
+        final JsonWriter writer = new JsonWriter( outputWriter );
+        try
+        {
+            mGame.writeToJson( writer );
+            writer.flush();
+            final byte[] data = output.toByteArray();
+
+            if( exceptAddress == null )
+            {
+                mBluetoothFragment.sendToAll( data );
             }
             else
             {
-                if( ALL_ADDRESSES.equals( destination ) || mAddress.equals( destination ) )
-                {
-                    this.onMessageReceived( message );
-                }
+                mBluetoothFragment.sendToAllExcept( data, exceptAddress );
             }
         }
-    }
-
-    public void onMessageReceived( Message message )
-    {
-        switch( message.messageType() )
+        catch( IOException ex )
         {
-            case PlayerConnected:
+            Deck.debugToast( "An error occurred while writing updated Game.", ex );
+        }
+        finally
+        {
+            try
             {
-                final String playerName = message.deviceName();
-                final String playerAddress = message.deviceAddress();
-                for( Client client : mClients )
-                {
-                    final Player player = new Player( playerName, playerAddress );
-                    client.onPlayerConnect( player );
-                }
-                break;
+                writer.close();
             }
-
-            case PlayerDisconnected:
+            catch( IOException ex )
             {
-                final String playerName = message.deviceName();
-                final String playerAddress = message.deviceAddress();
-                for( Client client : mClients )
-                {
-                    final Player player = new Player( playerName, playerAddress );
-                    client.onPlayerDisconnect( player );
-                }
-                break;
+                Deck.debugToast( "An error occurred while closing JSON writer.", ex );
             }
         }
     }
+
+    private final Player.PlayerListener mPlayerListener = new Player.PlayerListener()
+    {
+        @Override
+        public void onCardAdded( Player player, Card card )
+        {
+            if( mListening )
+            {
+                sendUpdatedGame( null );
+            }
+        }
+
+        @Override
+        public void onCardRemoved( Player player, Card card )
+        {
+            if( mListening )
+            {
+                sendUpdatedGame( null );
+            }
+        }
+    };
 }

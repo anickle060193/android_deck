@@ -15,8 +15,8 @@ public class Player extends Listenable<Player.PlayerListener>
 {
     public interface PlayerListener
     {
-        void onCardAdded( Card card );
-        void onCardRemoved( Card card );
+        void onCardAdded( Player player, Card card );
+        void onCardRemoved( Player player, Card card );
     }
 
     private final String mName;
@@ -67,7 +67,7 @@ public class Player extends Listenable<Player.PlayerListener>
 
         for( PlayerListener listener : getListeners() )
         {
-            listener.onCardAdded( card );
+            listener.onCardAdded( this, card );
         }
     }
 
@@ -77,7 +77,7 @@ public class Player extends Listenable<Player.PlayerListener>
 
         for( PlayerListener listener : getListeners() )
         {
-            listener.onCardRemoved( card );
+            listener.onCardRemoved( this, card );
         }
     }
 

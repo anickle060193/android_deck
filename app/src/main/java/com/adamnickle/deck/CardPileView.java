@@ -7,10 +7,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.CardPile;
-
-import java.util.Collection;
 
 
 public class CardPileView extends ImageView
@@ -25,7 +22,6 @@ public class CardPileView extends ImageView
         super( context );
 
         mCardPile = cardPile;
-        mCardPile.addListener( mListener );
 
         final int cardWidth = getResources().getDimensionPixelSize( R.dimen.card_width );
         final int cardHeight = getResources().getDimensionPixelSize( R.dimen.card_height );
@@ -43,46 +39,6 @@ public class CardPileView extends ImageView
     {
         setImageResource( mCardPile.getResource() );
     }
-
-    private final CardPile.CardPileListener mListener = new CardPile.CardPileListener()
-    {
-
-        @Override
-        public void onCardAdded( Card card )
-        {
-            update();
-        }
-
-        @Override
-        public void onCardsAdded( Collection<? extends Card> cards )
-        {
-            update();
-        }
-
-        @Override
-        public void onCardRemoved( Card card )
-        {
-            update();
-        }
-
-        @Override
-        public void onCardsRemoved( Collection<? extends Card> cards )
-        {
-            update();
-        }
-
-        @Override
-        public void onCardCollectionChanged()
-        {
-            update();
-        }
-
-        @Override
-        public void onIsFaceUpChanged( boolean isFaceUp )
-        {
-            update();
-        }
-    };
 
     public void setPositionX( int x )
     {

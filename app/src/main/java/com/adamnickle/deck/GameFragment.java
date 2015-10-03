@@ -10,7 +10,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.adamnickle.deck.Game.Card;
-import com.adamnickle.deck.Game.CardTableLayout;
 import com.adamnickle.deck.Game.Game;
 import com.adamnickle.deck.Game.Player;
 
@@ -45,7 +44,7 @@ public class GameFragment extends Fragment
 
         mOrientation = getResources().getConfiguration().orientation;
 
-        mMessenger.registerClient( mClient );
+        mMessenger.getGame().registerListener( mGameListener );
     }
 
     @Override
@@ -66,12 +65,20 @@ public class GameFragment extends Fragment
             } );
 
             mCardTable = (CardTableLayout)mMainView.findViewById( R.id.cardTable );
-            mCardTable.setOnCardSendListener( new CardTableLayout.OnCardSendListener()
+            mCardTable.setOnCardSendListener( new CardTableLayout.CardSendListener()
             {
                 @Override
-                public boolean onCardSend( Card card )
+                public void onCardSend( final Card card )
                 {
-                    return card.getSuit() == Card.SPADES || card.getSuit() == Card.HEARTS;
+                    showPlayerSelector( "Send card to:", new OnPlayerSelectedListener()
+                    {
+                        @Override
+                        public void onPlayerSelected( Player player )
+                        {
+                            mCardTable.getPlayer().removeCard( card );
+                            player.addCard( card );
+                        }
+                    } );
                 }
             } );
         }
@@ -114,23 +121,31 @@ public class GameFragment extends Fragment
     {
         super.onDestroy();
 
-        mMessenger.unregisterClient( mClient );
+        mMessenger.getGame().unregisterListener( mGameListener );
     }
 
-    private final Client mClient = new Client()
+    private final Game.GameListener mGameListener = new Game.GameListener()
     {
         @Override
-        public void onPlayerConnect( Player player )
+        public void onPlayerAdded( Game game, Player player )
         {
+            if( player.getAddress().equals( mMessenger.getThisAddress() ) )
+            {
+                mCardTable.setPlayer( player );
+            }
+
             Deck.toast( player.getName() + " has connected." );
-            mGame.addPlayer( player );
         }
 
         @Override
-        public void onPlayerDisconnect( Player player )
+        public void onPlayerRemoved( Game game, Player player )
         {
+            if( player.getAddress().equals( mMessenger.getThisAddress() ) )
+            {
+                mCardTable.setPlayer( null );
+            }
+
             Deck.toast( player.getName() + " has disconnected." );
-            mGame.removePlayer( player );
         }
     };
 

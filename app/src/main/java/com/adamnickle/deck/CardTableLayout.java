@@ -1,6 +1,5 @@
-package com.adamnickle.deck.Game;
+package com.adamnickle.deck;
 
-import android.animation.Animator;
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
@@ -11,22 +10,23 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.adamnickle.deck.PlayingCardView;
-import com.adamnickle.deck.R;
+import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deck.Game.Player;
 
 
 public class CardTableLayout extends FrameLayout
 {
-    public interface OnCardSendListener
+    public interface CardSendListener
     {
-        boolean onCardSend( Card card );
+        void onCardSend( Card card );
     }
 
     private final ImageView mCardHolder;
-
+    private final SparseArray<PlayingCardView> mPlayingCardViews = new SparseArray<>();
     private final SparseArray<PlayingCardView> mDraggingViews = new SparseArray<>();
 
-    private OnCardSendListener mListener;
+    private CardSendListener mListener;
+    private Player mPlayer;
 
     //region Constructors
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -70,6 +70,43 @@ public class CardTableLayout extends FrameLayout
         this.addView( mCardHolder );
     }
     //endregion
+
+    public void setPlayer( Player player )
+    {
+        if( mPlayer != null )
+        {
+            mPlayer.unregisterListener( mPlayerListener );
+        }
+        mPlayer = player;
+        if( mPlayer != null )
+        {
+            mPlayer.registerListener( mPlayerListener );
+        }
+    }
+
+    public Player getPlayer()
+    {
+        return mPlayer;
+    }
+
+    private final Player.PlayerListener mPlayerListener = new Player.PlayerListener()
+    {
+        @Override
+        public void onCardAdded( Player player, Card card )
+        {
+            final PlayingCardView view = new PlayingCardView( getContext(), card );
+            mPlayingCardViews.put( card.getCardId(), view );
+            addView( view );
+        }
+
+        @Override
+        public void onCardRemoved( Player player, Card card )
+        {
+            final PlayingCardView view = mPlayingCardViews.get( card.getCardId() );
+            mPlayingCardViews.remove( card.getCardId() );
+            removeView( view );
+        }
+    };
 
     private PlayingCardView getPlayingCardViewUnder( float rawX, float rawY )
     {
@@ -131,12 +168,10 @@ public class CardTableLayout extends FrameLayout
                     final float rawY = ev.getRawY();
                     if( this.isInCardHolder( rawX, rawY ) )
                     {
-                        final int[] location = new int[ 2 ];
-                        v.getLocationOnScreen( location );
-                        v.setPivotX( rawX - location[ 0 ] );
-                        v.setPivotY( rawY - location[ 1 ] );
-
-                        onCardSend( v );
+                        if( mListener != null )
+                        {
+                            mListener.onCardSend( v.getCard() );
+                        }
                     }
                 }
                 break;
@@ -146,57 +181,8 @@ public class CardTableLayout extends FrameLayout
         return false;
     }
 
-    public void setOnCardSendListener( OnCardSendListener listener )
+    public void setOnCardSendListener( CardSendListener listener )
     {
-        if( mListener == null )
-        {
-            mListener = listener;
-        }
-    }
-
-    public void unSetOnCardSendListener( OnCardSendListener listener )
-    {
-        if( listener == mListener )
-        {
-            mListener = null;
-        }
-    }
-
-    protected void onCardSend( final PlayingCardView view )
-    {
-        if( mListener != null && mListener.onCardSend( view.getCard() ) )
-        {
-            view.setClickable( false );
-            view.setFocusableInTouchMode( false );
-            view.animate()
-                    .setDuration( 300 )
-                    .scaleX( 0.0f )
-                    .scaleY( 0.0f )
-                    .setListener( new Animator.AnimatorListener()
-                    {
-                        @Override
-                        public void onAnimationEnd( Animator animation )
-                        {
-                            CardTableLayout.this.removeView( view );
-                        }
-
-                        @Override
-                        public void onAnimationCancel( Animator animation )
-                        {
-                            CardTableLayout.this.removeView( view );
-                        }
-
-                        @Override
-                        public void onAnimationStart( Animator animation )
-                        {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat( Animator animation )
-                        {
-                        }
-                    } )
-                    .start();
-        }
+        mListener = listener;
     }
 }
