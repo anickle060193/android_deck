@@ -3,13 +3,12 @@ package com.adamnickle.deck.Game;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.adamnickle.deck.Diff;
 import com.adamnickle.deck.Listenable;
-import com.adamnickle.deck.MyCollections;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 
@@ -43,11 +42,6 @@ public class Game extends Listenable<Game.GameListener>
         }
     }
 
-    public int getPlayerCount()
-    {
-        return mPlayers.size();
-    }
-
     public List<Player> getPlayers()
     {
         return new ArrayList<>( mPlayers.values() );
@@ -55,15 +49,13 @@ public class Game extends Listenable<Game.GameListener>
 
     public void update( Game updatedGame )
     {
-        final HashSet<Player> addedPlayers = new HashSet<>();
-        final HashSet<Player> removedPlayers = new HashSet<>();
-        MyCollections.diff( mPlayers.values(), updatedGame.mPlayers.values(), addedPlayers, removedPlayers );
+        final Diff<Player> diff = Diff.difference( mPlayers.values(), updatedGame.mPlayers.values() );
 
-        for( Player removed : removedPlayers )
+        for( Player removed : diff.Removed )
         {
             removePlayer( removed );
         }
-        for( Player added : addedPlayers )
+        for( Player added : diff.Added )
         {
             addPlayer( added );
         }
@@ -104,7 +96,7 @@ public class Game extends Listenable<Game.GameListener>
                     final Player player = Player.readFromJson( reader );
                     game.addPlayer( player );
                 }
-                reader.endObject();
+                reader.endArray();
             }
             else
             {

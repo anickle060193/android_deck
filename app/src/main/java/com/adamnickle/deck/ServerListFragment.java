@@ -52,7 +52,6 @@ public class ServerListFragment extends Fragment
             mRecyclerView.setLayoutManager( new LinearLayoutManager( getActivity() ) );
             mAdapter = new ServerArrayAdapter();
             mRecyclerView.setAdapter( mAdapter );
-            mAdapter.registerAdapterDataObserver( new ServerAdapterObserver() );
             updateViews();
         }
         else
@@ -95,7 +94,11 @@ public class ServerListFragment extends Fragment
         @Override
         public void onDeviceFound( BluetoothDevice device )
         {
-            mAdapter.add( device );
+            if( !mAdapter.contains( device ) )
+            {
+                mAdapter.add( device );
+                updateViews();
+            }
         }
     };
 
@@ -151,45 +154,6 @@ public class ServerListFragment extends Fragment
             final BluetoothDevice device = get( position );
             holder.Device = device;
             holder.ServerName.setText( device.getName() );
-        }
-    }
-
-    private class ServerAdapterObserver extends RecyclerView.AdapterDataObserver
-    {
-        @Override
-        public void onChanged()
-        {
-            super.onChanged();
-        }
-
-        @Override
-        public void onItemRangeChanged( int positionStart, int itemCount )
-        {
-            updateViews();
-        }
-
-        @Override
-        public void onItemRangeChanged( int positionStart, int itemCount, Object payload )
-        {
-            updateViews();
-        }
-
-        @Override
-        public void onItemRangeInserted( int positionStart, int itemCount )
-        {
-            updateViews();
-        }
-
-        @Override
-        public void onItemRangeRemoved( int positionStart, int itemCount )
-        {
-            updateViews();
-        }
-
-        @Override
-        public void onItemRangeMoved( int fromPosition, int toPosition, int itemCount )
-        {
-            updateViews();
         }
     }
 }

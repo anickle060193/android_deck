@@ -27,7 +27,7 @@ public class GameFragment extends Fragment
 
     private int mOrientation;
 
-    private final Game mGame = new Game();
+    private Game mGame;
 
     public static GameFragment newInstance( BluetoothFragment bluetoothFragment )
     {
@@ -44,7 +44,8 @@ public class GameFragment extends Fragment
 
         mOrientation = getResources().getConfiguration().orientation;
 
-        mMessenger.getGame().registerListener( mGameListener );
+        mGame = mMessenger.getGame();
+        mGame.registerListener( mGameListener );
     }
 
     @Override
@@ -58,9 +59,7 @@ public class GameFragment extends Fragment
                 @Override
                 public void onClick( View v )
                 {
-                    final PlayingCardView playingCardView = new PlayingCardView( getActivity(), new Card() );
-                    ( (ViewGroup)v ).addView( playingCardView );
-                    mPlayingCardViews.add( playingCardView );
+                    mCardTable.getPlayer().addCard( new Card() );
                 }
             } );
 
@@ -81,6 +80,13 @@ public class GameFragment extends Fragment
                     } );
                 }
             } );
+            for( Player player : mGame.getPlayers() )
+            {
+                if( mMessenger.isMe( player.getAddress() ) )
+                {
+                    mCardTable.setPlayer( player );
+                }
+            }
         }
         else
         {
@@ -121,7 +127,7 @@ public class GameFragment extends Fragment
     {
         super.onDestroy();
 
-        mMessenger.getGame().unregisterListener( mGameListener );
+        mGame.unregisterListener( mGameListener );
     }
 
     private final Game.GameListener mGameListener = new Game.GameListener()
@@ -129,7 +135,7 @@ public class GameFragment extends Fragment
         @Override
         public void onPlayerAdded( Game game, Player player )
         {
-            if( player.getAddress().equals( mMessenger.getThisAddress() ) )
+            if( mMessenger.isMe( player.getAddress() ) )
             {
                 mCardTable.setPlayer( player );
             }
@@ -140,7 +146,7 @@ public class GameFragment extends Fragment
         @Override
         public void onPlayerRemoved( Game game, Player player )
         {
-            if( player.getAddress().equals( mMessenger.getThisAddress() ) )
+            if( mMessenger.isMe( player.getAddress() ) )
             {
                 mCardTable.setPlayer( null );
             }

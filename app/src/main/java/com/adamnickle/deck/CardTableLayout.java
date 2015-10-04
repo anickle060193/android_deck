@@ -92,27 +92,40 @@ public class CardTableLayout extends FrameLayout
     private final Player.PlayerListener mPlayerListener = new Player.PlayerListener()
     {
         @Override
-        public void onCardAdded( Player player, Card card )
+        public void onCardAdded( Player player, final Card card )
         {
-            final PlayingCardView view = new PlayingCardView( getContext(), card );
-            mPlayingCardViews.put( card.getCardId(), view );
-            addView( view );
+            CardTableLayout.this.post( new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    final PlayingCardView view = new PlayingCardView( getContext(), card );
+                    mPlayingCardViews.put( card.getCardId(), view );
+                    addView( view );
+                }
+            } );
         }
 
         @Override
-        public void onCardRemoved( Player player, Card card )
+        public void onCardRemoved( Player player, final Card card )
         {
-            final PlayingCardView view = mPlayingCardViews.get( card.getCardId() );
-            mPlayingCardViews.remove( card.getCardId() );
-            removeView( view );
+            CardTableLayout.this.post( new Runnable()
+            {
+                @Override
+                public void run()
+                {
+                    final PlayingCardView view = mPlayingCardViews.get( card.getCardId() );
+                    mPlayingCardViews.remove( card.getCardId() );
+                    removeView( view );
+                }
+            } );
         }
     };
 
     private PlayingCardView getPlayingCardViewUnder( float rawX, float rawY )
     {
         final int[] location = new int[ 2 ];
-        final int childCount = getChildCount();
-        for( int i = 0; i < childCount; i++ )
+        for( int i = getChildCount() - 1; i >= 0; i-- )
         {
             final View view = getChildAt( i );
             if( view instanceof PlayingCardView )

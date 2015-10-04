@@ -45,11 +45,13 @@ public class Messenger
                 player.unregisterListener( mPlayerListener );
             }
         } );
+
+        mGame.addPlayer( new Player( mBluetoothFragment.getAdapter().getName(), mAddress ) );
     }
 
-    public String getThisAddress()
+    public boolean isMe( String address )
     {
-        return mAddress;
+        return mAddress.equals( address );
     }
 
     public Game getGame()

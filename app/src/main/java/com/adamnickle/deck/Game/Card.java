@@ -84,6 +84,32 @@ public class Card
         return CARD_RESOURCES[ getSuit() ][ getRank() ];
     }
 
+    @Override
+    public boolean equals( Object o )
+    {
+        if( this == o )
+        {
+            return true;
+        }
+        if( !( o instanceof Card ) )
+        {
+            return false;
+        }
+
+        final Card card = (Card)o;
+
+        return mSuit == card.mSuit
+            && mRank == card.mRank;
+    }
+
+    @Override
+    public int hashCode()
+    {
+        int result = mSuit;
+        result = 31 * result + mRank;
+        return result;
+    }
+
     public void writeToJson( JsonWriter writer ) throws IOException
     {
         writer.value( getCardId() );

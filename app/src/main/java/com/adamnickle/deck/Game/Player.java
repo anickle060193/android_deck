@@ -3,8 +3,8 @@ package com.adamnickle.deck.Game;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.adamnickle.deck.Diff;
 import com.adamnickle.deck.Listenable;
-import com.adamnickle.deck.MyCollections;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -37,15 +37,13 @@ public class Player extends Listenable<Player.PlayerListener>
 
     public void update( Player updatedPlayer )
     {
-        final List<Card> addedCards = new ArrayList<>();
-        final List<Card> removedCards = new ArrayList<>();
-        MyCollections.diff( mCards, updatedPlayer.mCards, addedCards, removedCards );
+        final Diff<Card> diff = Diff.difference( mCards, updatedPlayer.mCards );
 
-        for( Card card : removedCards )
+        for( Card card : diff.Removed )
         {
             removeCard( card );
         }
-        for( Card card : addedCards )
+        for( Card card : diff.Added )
         {
             addCard( card );
         }
@@ -79,6 +77,29 @@ public class Player extends Listenable<Player.PlayerListener>
         {
             listener.onCardRemoved( this, card );
         }
+    }
+
+    @Override
+    public boolean equals( Object o )
+    {
+        if( this == o )
+        {
+            return true;
+        }
+        if( !( o instanceof Player ) )
+        {
+            return false;
+        }
+
+        final Player player = (Player)o;
+
+        return this.mAddress.equals( player.getAddress() );
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return mAddress.hashCode();
     }
 
     public void writeToJson( JsonWriter writer ) throws IOException
@@ -124,6 +145,7 @@ public class Player extends Listenable<Player.PlayerListener>
                     final Card card = Card.readFromJson( reader );
                     cards.add( card );
                 }
+                reader.endArray();
             }
             else
             {
