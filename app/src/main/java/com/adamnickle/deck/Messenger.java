@@ -78,7 +78,7 @@ public class Messenger
             mPaused = false;
             if( mLastModCount != mModCount )
             {
-                sendUpdatedGame( null );
+                sendUpdatedGame();
             }
             mLastModCount = -1;
         }
@@ -102,7 +102,7 @@ public class Messenger
         {
             final Player player = new Player( device.getName(), device.getAddress() );
             mGame.addPlayer( player );
-            sendUpdatedGame( null );
+            sendUpdatedGame();
         }
     }
 
@@ -112,7 +112,7 @@ public class Messenger
         {
             final Player player = new Player( device.getName(), device.getAddress() );
             mGame.removePlayer( player );
-            sendUpdatedGame( null );
+            sendUpdatedGame();
         }
         else
         {
@@ -137,7 +137,7 @@ public class Messenger
 
                 if( mBluetoothFragment.isServer() )
                 {
-                    sendUpdatedGame( device.getAddress() );
+                    sendUpdatedGame();
                 }
             }
         }
@@ -158,7 +158,7 @@ public class Messenger
         }
     }
 
-    private void sendUpdatedGame( String exceptAddress )
+    private void sendUpdatedGame()
     {
         if( mPaused )
         {
@@ -174,14 +174,7 @@ public class Messenger
             writer.flush();
             final byte[] data = output.toByteArray();
 
-            if( exceptAddress == null )
-            {
-                mBluetoothFragment.sendToAll( data );
-            }
-            else
-            {
-                mBluetoothFragment.sendToAllExcept( data, exceptAddress );
-            }
+            mBluetoothFragment.sendToAll( data );
         }
         catch( IOException ex )
         {
@@ -207,7 +200,7 @@ public class Messenger
         {
             if( mListening )
             {
-                sendUpdatedGame( null );
+                sendUpdatedGame();
                 mModCount++;
             }
         }
@@ -217,7 +210,7 @@ public class Messenger
         {
             if( mListening )
             {
-                sendUpdatedGame( null );
+                sendUpdatedGame();
                 mModCount++;
             }
         }
