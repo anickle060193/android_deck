@@ -13,7 +13,6 @@ import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.Game;
 import com.adamnickle.deck.Game.Player;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -23,7 +22,6 @@ public class GameFragment extends Fragment
     private CardTableLayout mCardTable;
 
     private Messenger mMessenger;
-    private final List<PlayingCardView> mPlayingCardViews = new ArrayList<>();
 
     private int mOrientation;
 
@@ -72,10 +70,17 @@ public class GameFragment extends Fragment
                     showPlayerSelector( "Send card to:", new OnPlayerSelectedListener()
                     {
                         @Override
-                        public void onPlayerSelected( Player player )
+                        public void onPlayerSelected( final Player player )
                         {
-                            mCardTable.getPlayer().removeCard( card );
-                            player.addCard( card );
+                            mMessenger.performAction( new Messenger.Action()
+                            {
+                                @Override
+                                public void run()
+                                {
+                                    mCardTable.getPlayer().removeCard( card );
+                                    player.addCard( card );
+                                }
+                            } );
                         }
                     } );
                 }
@@ -109,14 +114,18 @@ public class GameFragment extends Fragment
         final int newOrientation = getResources().getConfiguration().orientation;
         if( newOrientation != mOrientation )
         {
-            for( PlayingCardView view : mPlayingCardViews )
+            for( int i = mCardTable.getChildCount() - 1; i >= 0; i-- )
             {
-                final FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)view.getLayoutParams();
-                final int temp = params.leftMargin;
-                //noinspection SuspiciousNameCombination
-                params.leftMargin = params.topMargin;
-                params.topMargin = temp;
-                view.setLayoutParams( params );
+                final View view = mCardTable.getChildAt( i );
+                if( view instanceof PlayingCardView )
+                {
+                    final FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)view.getLayoutParams();
+                    final int temp = params.leftMargin;
+                    //noinspection SuspiciousNameCombination
+                    params.leftMargin = params.topMargin;
+                    params.topMargin = temp;
+                    view.setLayoutParams( params );
+                }
             }
             mOrientation = newOrientation;
         }

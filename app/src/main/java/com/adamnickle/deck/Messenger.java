@@ -17,14 +17,15 @@ import java.io.OutputStreamWriter;
 
 public class Messenger
 {
-    public static final String ALL_ADDRESSES = BuildConfig.APPLICATION_ID + ".all_addresses";
-
     private final BluetoothFragment mBluetoothFragment;
     private final String mAddress;
 
     private final Game mGame = new Game();
 
     private boolean mListening = true;
+    private int mModCount = 0;
+    private int mLastModCount = -1;
+    private boolean mPaused = false;
 
     public Messenger( BluetoothFragment fragment )
     {
@@ -37,12 +38,14 @@ public class Messenger
             public void onPlayerAdded( Game game, Player player )
             {
                 player.registerListener( mPlayerListener );
+                mModCount++;
             }
 
             @Override
             public void onPlayerRemoved( Game game, Player player )
             {
                 player.unregisterListener( mPlayerListener );
+                mModCount++;
             }
         } );
 
@@ -57,6 +60,40 @@ public class Messenger
     public Game getGame()
     {
         return mGame;
+    }
+
+    private void pauseUpdates()
+    {
+        if( !mPaused )
+        {
+            mPaused = true;
+            mLastModCount = mModCount;
+        }
+    }
+
+    private void resumeUpdates()
+    {
+        if( mPaused )
+        {
+            mPaused = false;
+            if( mLastModCount != mModCount )
+            {
+                sendUpdatedGame( null );
+            }
+            mLastModCount = -1;
+        }
+    }
+
+    public interface Action
+    {
+        void run();
+    }
+
+    public void performAction( Action action )
+    {
+        pauseUpdates();
+        action.run();
+        resumeUpdates();
     }
 
     public void onDeviceConnect( BluetoothDevice device )
@@ -76,6 +113,11 @@ public class Messenger
             final Player player = new Player( device.getName(), device.getAddress() );
             mGame.removePlayer( player );
             sendUpdatedGame( null );
+        }
+        else
+        {
+            MainActivity.backToMenu( mBluetoothFragment.getActivity() );
+            Deck.toast( "Disconnected from server." );
         }
     }
 
@@ -118,6 +160,11 @@ public class Messenger
 
     private void sendUpdatedGame( String exceptAddress )
     {
+        if( mPaused )
+        {
+            return;
+        }
+
         final ByteArrayOutputStream output = new ByteArrayOutputStream();
         final OutputStreamWriter outputWriter = new OutputStreamWriter( output );
         final JsonWriter writer = new JsonWriter( outputWriter );
@@ -161,6 +208,7 @@ public class Messenger
             if( mListening )
             {
                 sendUpdatedGame( null );
+                mModCount++;
             }
         }
 
@@ -170,6 +218,7 @@ public class Messenger
             if( mListening )
             {
                 sendUpdatedGame( null );
+                mModCount++;
             }
         }
     };

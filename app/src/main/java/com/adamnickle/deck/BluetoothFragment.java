@@ -354,7 +354,6 @@ public class BluetoothFragment extends Fragment
                 catch( IOException ex )
                 {
                     Deck.log( "An error occurred while accepting a connection.", ex );
-                    break;
                 }
             }
         }
