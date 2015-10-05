@@ -8,8 +8,8 @@ android {
         applicationId "com.adamnickle.deck"
         minSdkVersion 18
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+        versionCode 10
+        versionName "0.1.0"
     }
     buildTypes {
         release {
