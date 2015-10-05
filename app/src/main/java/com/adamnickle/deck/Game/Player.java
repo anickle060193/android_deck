@@ -17,10 +17,12 @@ public class Player extends Listenable<Player.PlayerListener>
     {
         void onCardAdded( Player player, Card card );
         void onCardRemoved( Player player, Card card );
+        void onNameChanged( Player player, String oldName );
     }
 
-    private final String mName;
     private final String mAddress;
+
+    private String mName;
     private final List<Card> mCards;
 
     private Player( String name, String address, List<Card> collection )
@@ -47,11 +49,30 @@ public class Player extends Listenable<Player.PlayerListener>
         {
             addCard( card );
         }
+
+        if( !mName.equals( updatedPlayer.mName ) )
+        {
+            setName( updatedPlayer.mName );
+        }
     }
 
     public String getName()
     {
         return mName;
+    }
+
+    public void setName( String name )
+    {
+        if( name != null )
+        {
+            final String oldName = mName;
+            mName = name;
+
+            for( PlayerListener listener : getListeners() )
+            {
+                listener.onNameChanged( this, oldName );
+            }
+        }
     }
 
     public String getAddress()
@@ -100,6 +121,12 @@ public class Player extends Listenable<Player.PlayerListener>
     public int hashCode()
     {
         return mAddress.hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return mName;
     }
 
     public void writeToJson( JsonWriter writer ) throws IOException

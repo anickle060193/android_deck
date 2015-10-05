@@ -193,26 +193,33 @@ public class Messenger
         }
     }
 
+    private void onGameChanged()
+    {
+        if( mListening )
+        {
+            sendUpdatedGame();
+            mModCount++;
+        }
+    }
+
     private final Player.PlayerListener mPlayerListener = new Player.PlayerListener()
     {
         @Override
         public void onCardAdded( Player player, Card card )
         {
-            if( mListening )
-            {
-                sendUpdatedGame();
-                mModCount++;
-            }
+            onGameChanged();
         }
 
         @Override
         public void onCardRemoved( Player player, Card card )
         {
-            if( mListening )
-            {
-                sendUpdatedGame();
-                mModCount++;
-            }
+            onGameChanged();
+        }
+
+        @Override
+        public void onNameChanged( Player player, String oldName )
+        {
+            onGameChanged();
         }
     };
 }

@@ -120,6 +120,12 @@ public class CardTableLayout extends FrameLayout
                 }
             } );
         }
+
+        @Override
+        public void onNameChanged( Player player, String oldName )
+        {
+            // Do nothing
+        }
     };
 
     private PlayingCardView getPlayingCardViewUnder( float rawX, float rawY )

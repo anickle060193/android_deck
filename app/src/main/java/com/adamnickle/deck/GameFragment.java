@@ -1,10 +1,12 @@
 package com.adamnickle.deck;
 
-import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -39,6 +41,7 @@ public class GameFragment extends Fragment
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
+        setHasOptionsMenu( true );
 
         mOrientation = getResources().getConfiguration().orientation;
 
@@ -105,6 +108,26 @@ public class GameFragment extends Fragment
     }
 
     @Override
+    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
+    {
+        inflater.inflate( R.menu.game, menu );
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+        switch( item.getItemId() )
+        {
+            case R.id.setName:
+                showPlayerNameDialog();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected( item );
+        }
+    }
+
+    @Override
     public void onResume()
     {
         super.onResume();
@@ -164,6 +187,18 @@ public class GameFragment extends Fragment
         }
     };
 
+    private void showPlayerNameDialog()
+    {
+        Dialog.showTextDialog( getActivity(), "Set name:", true, "OK", new Dialog.OnTextDialogClickListener()
+        {
+            @Override
+            public void onClick( DialogInterface dialog, String text )
+            {
+                mCardTable.getPlayer().setName( text );
+            }
+        } );
+    }
+
     private interface OnPlayerSelectedListener
     {
         void onPlayerSelected( Player player );
@@ -172,32 +207,13 @@ public class GameFragment extends Fragment
     private void showPlayerSelector( String title, final OnPlayerSelectedListener listener )
     {
         final List<Player> players = mGame.getPlayers();
-        final String[] playerNames = new String[ players.size() ];
-        for( int i = 0; i < playerNames.length; i++ )
+        Dialog.showSingleChoiceDialog( getActivity(), title, true, players.toArray( new Player[ players.size() ] ), new Dialog.OnSingleChoiceDialogClickListener<Player>()
         {
-            playerNames[ i ] = players.get( i ).getName();
-        }
-
-        new AlertDialog.Builder( getActivity() )
-                .setTitle( title )
-                .setSingleChoiceItems( playerNames, -1, new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        dialog.dismiss();
-                        final Player player = players.get( which );
-                        listener.onPlayerSelected( player );
-                    }
-                } )
-                .setNegativeButton( "Cancel", new DialogInterface.OnClickListener()
-                {
-                    @Override
-                    public void onClick( DialogInterface dialog, int which )
-                    {
-                        dialog.cancel();
-                    }
-                } )
-                .show();
+            @Override
+            public void onClick( DialogInterface dialog, Player player )
+            {
+                listener.onPlayerSelected( player );
+            }
+        } );
     }
 }
