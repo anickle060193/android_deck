@@ -4,8 +4,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/setName"
-        android:title="Set Name"
+        android:id="@+id/saveGame"
+        android:title="Save Game"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/openGame"
+        android:title="Open Game"
         app:showAsAction="never" />
 
 </menu>

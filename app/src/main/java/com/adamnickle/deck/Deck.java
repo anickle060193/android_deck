@@ -50,6 +50,7 @@ public class Deck extends Application
         if( BuildConfig.DEBUG )
         {
             Deck.toast( message );
+            Deck.log( message );
         }
     }
 
@@ -60,7 +61,11 @@ public class Deck extends Application
 
     public static void debugToast( String message, Exception ex )
     {
-        Deck.debugToast( "%s\n%s", message, ex.getMessage() );
+        if( BuildConfig.DEBUG )
+        {
+            Deck.toast( "%s\n%s", message, ex.getMessage() );
+            Deck.log( message, ex );
+        }
     }
 
     public static void log( String message )
@@ -78,7 +83,6 @@ public class Deck extends Application
 
     public static void log( String message, Exception ex )
     {
-        ex.printStackTrace();
         if( BuildConfig.DEBUG )
         {
             Log.e( TAG, message, ex );

@@ -66,6 +66,23 @@ public class Game extends Listenable<Game.GameListener>
         }
     }
 
+    public boolean hasSamePlayers( Game game )
+    {
+        if( this.mPlayers.size() != game.mPlayers.size() )
+        {
+            return false;
+        }
+
+        for( Player player : this.mPlayers.values() )
+        {
+            if( !game.mPlayers.containsValue( player ) )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void writeToJson( JsonWriter writer ) throws IOException
     {
         writer.beginObject();

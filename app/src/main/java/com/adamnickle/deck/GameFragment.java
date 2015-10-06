@@ -111,6 +111,10 @@ public class GameFragment extends Fragment
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
         inflater.inflate( R.menu.game, menu );
+        if( mMessenger.isServer() )
+        {
+            inflater.inflate( R.menu.game_server, menu );
+        }
     }
 
     @Override
@@ -120,6 +124,14 @@ public class GameFragment extends Fragment
         {
             case R.id.setName:
                 showPlayerNameDialog();
+                return true;
+
+            case R.id.saveGame:
+                saveGame();
+                return true;
+
+            case R.id.openGame:
+                openGame();
                 return true;
 
             default:
@@ -213,6 +225,53 @@ public class GameFragment extends Fragment
             public void onClick( DialogInterface dialog, Player player )
             {
                 listener.onPlayerSelected( player );
+            }
+        } );
+    }
+
+    private void saveGame()
+    {
+        Dialog.showTextDialog( getActivity(), "Enter save name:", true, "Save", new Dialog.OnTextDialogClickListener()
+        {
+            @Override
+            public void onClick( DialogInterface dialog, String saveName )
+            {
+                if( GameSave.saveGame( getActivity(), mGame, saveName ) )
+                {
+                    Deck.toast( "Game save was successful!" );
+                }
+                else
+                {
+                    Deck.toast( "Game save was unsuccessful. Try again." );
+                }
+            }
+        } );
+    }
+
+    private void openGame()
+    {
+        final String[] gameSaveNames = GameSave.getGameSaveNames( getActivity() );
+        Dialog.showSingleChoiceDialog( getActivity(), "Select game save:", true, gameSaveNames, new Dialog.OnSingleChoiceDialogClickListener<String>()
+        {
+            @Override
+            public void onClick( DialogInterface dialog, String saveName )
+            {
+                final Game game = GameSave.openGame( getActivity(), saveName );
+                if( game != null )
+                {
+                    if( mGame.hasSamePlayers( game ) )
+                    {
+                        mMessenger.openGame( game );
+                    }
+                    else
+                    {
+                        Deck.toast( "The same players must be playing as when the game was saved." );
+                    }
+                }
+                else
+                {
+                    Deck.toast( "The game save could not be opened. Try again." );
+                }
             }
         } );
     }

@@ -57,6 +57,11 @@ public class Messenger
         return mAddress.equals( address );
     }
 
+    public boolean isServer()
+    {
+        return mBluetoothFragment.isServer();
+    }
+
     public Game getGame()
     {
         return mGame;
@@ -96,9 +101,15 @@ public class Messenger
         resumeUpdates();
     }
 
+    public void openGame( Game game )
+    {
+        onGameReceived( game );
+    }
+
+    //TODO Create bluetooth listener and remove this
     public void onDeviceConnect( BluetoothDevice device )
     {
-        if( mBluetoothFragment.isServer() )
+        if( this.isServer() )
         {
             final Player player = new Player( device.getName(), device.getAddress() );
             mGame.addPlayer( player );
@@ -106,9 +117,10 @@ public class Messenger
         }
     }
 
+    //TODO Create bluetooth listener and remove this
     public void onDeviceDisconnect( BluetoothDevice device )
     {
-        if( mBluetoothFragment.isServer() )
+        if( this.isServer() )
         {
             final Player player = new Player( device.getName(), device.getAddress() );
             mGame.removePlayer( player );
@@ -118,6 +130,18 @@ public class Messenger
         {
             MainActivity.backToMenu( mBluetoothFragment.getActivity() );
             Deck.toast( "Disconnected from server." );
+        }
+    }
+
+    private void onGameReceived( Game game )
+    {
+        mListening = false;
+        mGame.update( game );
+        mListening = true;
+
+        if( this.isServer() )
+        {
+            sendUpdatedGame();
         }
     }
 
@@ -131,14 +155,7 @@ public class Messenger
             final Game updatedGame = Game.readFromJson( reader );
             if( updatedGame != null )
             {
-                mListening = false;
-                mGame.update( updatedGame );
-                mListening = true;
-
-                if( mBluetoothFragment.isServer() )
-                {
-                    sendUpdatedGame();
-                }
+                onGameReceived( updatedGame );
             }
         }
         catch( IOException ex )
