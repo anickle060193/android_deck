@@ -8,7 +8,6 @@ import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.Player;
@@ -21,55 +20,79 @@ public class CardTableLayout extends FrameLayout
         void onCardSend( Card card );
     }
 
-    private final ImageView mCardHolder;
+    private PlayingCardHolderView mCardHolder;
     private final SparseArray<PlayingCardView> mPlayingCardViews = new SparseArray<>();
     private final SparseArray<PlayingCardView> mDraggingViews = new SparseArray<>();
 
     private CardSendListener mListener;
     private Player mPlayer;
 
-    //region Constructors
+    private int mOrientation = -1;
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public CardTableLayout( Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes )
     {
         super( context, attrs, defStyleAttr, defStyleRes );
-
-        mCardHolder = new ImageView( context, attrs, defStyleAttr, defStyleRes );
-        initCardHolder();
-    }
-
-    public CardTableLayout( Context context )
-    {
-        this( context, null );
-    }
-
-    public CardTableLayout( Context context, AttributeSet attrs )
-    {
-        this( context, attrs, 0 );
     }
 
     public CardTableLayout( Context context, AttributeSet attrs, int defStyleAttr )
     {
         super( context, attrs, defStyleAttr );
-
-        mCardHolder = new ImageView( context, attrs, defStyleAttr );
-        initCardHolder();
     }
 
-    private void initCardHolder()
+    public CardTableLayout( Context context, AttributeSet attrs )
     {
-        mCardHolder.setImageResource( R.drawable.card_holder );
-
-        final LayoutParams params = generateDefaultLayoutParams();
-        params.width = getResources().getDimensionPixelSize( R.dimen.card_width );
-        params.height = getResources().getDimensionPixelSize( R.dimen.card_height );
-        final int margin = getResources().getDimensionPixelSize( R.dimen.card_holder_margin );
-        params.setMargins( margin, margin, margin, margin );
-        mCardHolder.setLayoutParams( params );
-
-        this.addView( mCardHolder );
+        super( context, attrs );
     }
-    //endregion
+
+    public CardTableLayout( Context context )
+    {
+        super( context );
+    }
+
+    @Override
+    protected void onFinishInflate()
+    {
+        super.onFinishInflate();
+
+        final int childCount = getChildCount();
+        for( int i = 0; i < childCount; i++ )
+        {
+            final View view = getChildAt( i );
+            if( view instanceof PlayingCardHolderView )
+            {
+                mCardHolder = (PlayingCardHolderView)view;
+                break;
+            }
+        }
+    }
+
+    @Override
+    protected void onLayout( boolean changed, int left, int top, int right, int bottom )
+    {
+        super.onLayout( changed, left, top, right, bottom );
+
+        Deck.log( "onLayout()" );
+
+        final int newOrientation = getResources().getConfiguration().orientation;
+        if( newOrientation != mOrientation && mOrientation != -1 )
+        {
+            for( int i = getChildCount() - 1; i >= 0; i-- )
+            {
+                final View view = getChildAt( i );
+                if( view instanceof PlayingCardView )
+                {
+                    final FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)view.getLayoutParams();
+                    final int temp = params.leftMargin;
+                    //noinspection SuspiciousNameCombination
+                    params.leftMargin = params.topMargin;
+                    params.topMargin = temp;
+                    view.setLayoutParams( params );
+                }
+            }
+            mOrientation = newOrientation;
+        }
+    }
 
     public void setPlayer( Player player )
     {
@@ -149,6 +172,10 @@ public class CardTableLayout extends FrameLayout
 
     private boolean isInCardHolder( float rawX, float rawY )
     {
+        if( mCardHolder == null )
+        {
+            return false;
+        }
         final int[] location = new int[ 2 ];
         mCardHolder.getLocationOnScreen( location );
         return location[ 0 ] <= rawX && rawX <= location[ 0 ] + mCardHolder.getWidth()

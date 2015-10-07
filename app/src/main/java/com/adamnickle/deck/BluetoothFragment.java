@@ -58,30 +58,34 @@ public class BluetoothFragment extends Fragment
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
+        setRetainInstance( true );
 
-        if( mAdapter == null )
+        if( savedInstanceState == null )
         {
-            Deck.toast( "Bluetooth must be supported." );
-            getActivity().finish();
-            return;
-        }
-
-        enableBluetooth();
-
-        final IntentFilter filter = new IntentFilter();
-        filter.addAction( BluetoothDevice.ACTION_FOUND );
-        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_STARTED );
-        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
-        filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
-        filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
-        getActivity().registerReceiver( mReceiver, filter );
-
-        if( this.isServer() )
-        {
-            if( !this.createServer() )
+            if( mAdapter == null )
             {
-                MainActivity.backToMenu( getActivity() );
-                Deck.toast( "The server could not be opened." );
+                Deck.toast( "Bluetooth must be supported." );
+                getActivity().finish();
+                return;
+            }
+
+            enableBluetooth();
+
+            final IntentFilter filter = new IntentFilter();
+            filter.addAction( BluetoothDevice.ACTION_FOUND );
+            filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_STARTED );
+            filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
+            filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
+            filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
+            getActivity().registerReceiver( mReceiver, filter );
+
+            if( this.isServer() )
+            {
+                if( !this.createServer() )
+                {
+                    MainActivity.backToMenu( getActivity() );
+                    Deck.toast( "The server could not be opened." );
+                }
             }
         }
     }

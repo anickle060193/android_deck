@@ -9,7 +9,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
 import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.Game;
@@ -24,8 +23,6 @@ public class GameFragment extends Fragment
     private CardTableLayout mCardTable;
 
     private Messenger mMessenger;
-
-    private int mOrientation;
 
     private Game mGame;
 
@@ -42,8 +39,6 @@ public class GameFragment extends Fragment
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
         setHasOptionsMenu( true );
-
-        mOrientation = getResources().getConfiguration().orientation;
 
         mGame = mMessenger.getGame();
         mGame.registerListener( mGameListener );
@@ -98,11 +93,7 @@ public class GameFragment extends Fragment
         }
         else
         {
-            final ViewGroup parent = (ViewGroup)mMainView.getParent();
-            if( parent != null )
-            {
-                parent.removeView( mMainView );
-            }
+            Utilities.removeFromParent( mMainView );
         }
         return mMainView;
     }
@@ -145,25 +136,6 @@ public class GameFragment extends Fragment
         super.onResume();
 
         getActivity().setTitle( R.string.app_name );
-
-        final int newOrientation = getResources().getConfiguration().orientation;
-        if( newOrientation != mOrientation )
-        {
-            for( int i = mCardTable.getChildCount() - 1; i >= 0; i-- )
-            {
-                final View view = mCardTable.getChildAt( i );
-                if( view instanceof PlayingCardView )
-                {
-                    final FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)view.getLayoutParams();
-                    final int temp = params.leftMargin;
-                    //noinspection SuspiciousNameCombination
-                    params.leftMargin = params.topMargin;
-                    params.topMargin = temp;
-                    view.setLayoutParams( params );
-                }
-            }
-            mOrientation = newOrientation;
-        }
     }
 
     @Override

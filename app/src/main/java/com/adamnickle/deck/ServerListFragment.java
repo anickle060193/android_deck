@@ -56,11 +56,7 @@ public class ServerListFragment extends Fragment
         }
         else
         {
-            final ViewGroup parent = (ViewGroup)mMainView.getParent();
-            if( parent != null )
-            {
-                parent.removeView( mMainView );
-            }
+            Utilities.removeFromParent( mMainView );
         }
         return mMainView;
     }

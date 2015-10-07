@@ -1,5 +1,8 @@
 package com.adamnickle.deck;
 
+import android.view.View;
+import android.view.ViewGroup;
+
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -23,5 +26,14 @@ public abstract class Utilities
             }
         }
         return true;
+    }
+
+    public static void removeFromParent( View view )
+    {
+        final ViewGroup parent = (ViewGroup)view.getParent();
+        if( parent != null )
+        {
+            parent.removeView( view );
+        }
     }
 }
