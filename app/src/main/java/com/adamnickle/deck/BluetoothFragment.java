@@ -95,7 +95,6 @@ public class BluetoothFragment extends Fragment
     {
         super.onDestroy();
 
-        MainActivity.setIndeterminateProgressVisibility( getActivity(), false );
         getActivity().unregisterReceiver( mReceiver );
 
         if( this.isServer() )
@@ -163,11 +162,17 @@ public class BluetoothFragment extends Fragment
             }
             else if( BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals( action ) )
             {
-                MainActivity.setIndeterminateProgressVisibility( getActivity(), true );
+                for( BluetoothSearchListener listener : mSearchListeners )
+                {
+                    listener.onDiscoveryStarted();
+                }
             }
             else if( BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals( action ) )
             {
-                MainActivity.setIndeterminateProgressVisibility( getActivity(), false );
+                for( BluetoothSearchListener listener : mSearchListeners )
+                {
+                    listener.onDiscoveryEnded();
+                }
             }
             else if( BluetoothAdapter.ACTION_STATE_CHANGED.equals( action ) )
             {

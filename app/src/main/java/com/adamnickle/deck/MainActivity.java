@@ -1,6 +1,5 @@
 package com.adamnickle.deck;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -44,8 +43,8 @@ public class MainActivity extends AppCompatActivity
                 .popBackStack( StartMenuFragment.FRAGMENT_STATE_START_MENU, FragmentManager.POP_BACK_STACK_INCLUSIVE );
     }
 
-    public static void setIndeterminateProgressVisibility( Activity activity, boolean visible )
+    public void setIndeterminateProgressVisibility( boolean visible )
     {
-        ( (MainActivity)activity ).mIndeterminateProgressBar.setVisibility( visible ? View.VISIBLE : View.GONE );
+        mIndeterminateProgressBar.setVisibility( visible ? View.VISIBLE : View.GONE );
     }
 }

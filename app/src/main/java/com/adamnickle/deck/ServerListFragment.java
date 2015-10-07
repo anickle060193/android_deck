@@ -83,6 +83,8 @@ public class ServerListFragment extends Fragment
         super.onDestroy();
 
         mBluetoothFragment.unregisterBluetoothSearchListener( mSearchListener );
+
+        ( (MainActivity)getActivity() ).setIndeterminateProgressVisibility( false );
     }
 
     private final BluetoothSearchListener mSearchListener = new BluetoothSearchListener()
@@ -95,6 +97,18 @@ public class ServerListFragment extends Fragment
                 mAdapter.add( device );
                 updateViews();
             }
+        }
+
+        @Override
+        public void onDiscoveryStarted()
+        {
+            ( (MainActivity)getActivity() ).setIndeterminateProgressVisibility( true );
+        }
+
+        @Override
+        public void onDiscoveryEnded()
+        {
+            ( (MainActivity)getActivity() ).setIndeterminateProgressVisibility( false );
         }
     };
 
