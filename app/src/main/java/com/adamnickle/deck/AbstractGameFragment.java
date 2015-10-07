@@ -11,7 +11,7 @@ import java.util.List;
 
 
 @SuppressLint("ValidFragment")
-public abstract class PlayingCardHolderFragment extends Fragment
+public abstract class AbstractGameFragment extends Fragment
 {
     protected interface OnPlayerSelectedListener
     {
@@ -20,7 +20,7 @@ public abstract class PlayingCardHolderFragment extends Fragment
 
     private final Messenger mMessenger;
 
-    public PlayingCardHolderFragment( Messenger messenger )
+    public AbstractGameFragment( Messenger messenger )
     {
         mMessenger = messenger;
     }

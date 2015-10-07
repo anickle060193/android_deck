@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.adamnickle.deck.GameFragment"
+    tools:context="com.adamnickle.deck.PlayerGameFragment"
     android:id="@+id/cardTable">
 
     <com.adamnickle.deck.PlayingCardHolderView

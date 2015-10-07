@@ -57,7 +57,7 @@ public class StartMenuFragment extends Fragment
                 .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
                 .addToBackStack( FRAGMENT_STATE_START_MENU )
                 .add( btFragment, BluetoothFragment.FRAGMENT_TAG )
-                .replace( R.id.main_content, GameFragment.newInstance( btFragment ) )
+                .replace( R.id.main_content, PlayerGameFragment.newInstance( btFragment ) )
                 .commit();
     }
 

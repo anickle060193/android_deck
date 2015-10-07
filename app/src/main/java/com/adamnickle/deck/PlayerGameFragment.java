@@ -16,17 +16,17 @@ import com.adamnickle.deck.Game.Player;
 
 
 @SuppressLint("ValidFragment")
-public class GameFragment extends PlayingCardHolderFragment
+public class PlayerGameFragment extends AbstractGameFragment
 {
     private View mMainView;
     private CardTableLayout mCardTable;
 
-    public static GameFragment newInstance( BluetoothFragment bluetoothFragment )
+    public static PlayerGameFragment newInstance( BluetoothFragment bluetoothFragment )
     {
-        return new GameFragment( bluetoothFragment.getMessenger() );
+        return new PlayerGameFragment( bluetoothFragment.getMessenger() );
     }
 
-    public GameFragment( Messenger messenger )
+    public PlayerGameFragment( Messenger messenger )
     {
         super( messenger );
     }
@@ -46,7 +46,7 @@ public class GameFragment extends PlayingCardHolderFragment
     {
         if( mMainView == null )
         {
-            mMainView = inflater.inflate( R.layout.fragment_game, container, false );
+            mMainView = inflater.inflate( R.layout.fragment_player_game, container, false );
             mMainView.setOnClickListener( new View.OnClickListener()
             {
                 @Override
@@ -92,10 +92,10 @@ public class GameFragment extends PlayingCardHolderFragment
     @Override
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
-        inflater.inflate( R.menu.game, menu );
+        inflater.inflate( R.menu.player_game, menu );
         if( getMessenger().isServer() )
         {
-            inflater.inflate( R.menu.game_server, menu );
+            inflater.inflate( R.menu.player_game_server, menu );
         }
     }
 

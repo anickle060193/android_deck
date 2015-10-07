@@ -144,7 +144,7 @@ public class ServerListFragment extends Fragment
                     .beginTransaction()
                     .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
                     .addToBackStack( null )
-                    .replace( R.id.main_content, GameFragment.newInstance( mBluetoothFragment ) )
+                    .replace( R.id.main_content, PlayerGameFragment.newInstance( mBluetoothFragment ) )
                     .commit();
         }
     }
