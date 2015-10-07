@@ -8,9 +8,11 @@
 
     <include layout="@layout/toolbar" />
 
-    <FrameLayout
+    <fragment
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/main_content"/>
+        android:name="com.adamnickle.deck.StartMenuFragment"
+        tools:layout="@layout/fragment_start_menu"
+        android:id="@+id/startMenuFragment"/>
 
 </LinearLayout>

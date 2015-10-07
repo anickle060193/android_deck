@@ -1,8 +1,8 @@
 package com.adamnickle.deck;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,13 +13,6 @@ import butterknife.OnClick;
 
 public class StartMenuFragment extends Fragment
 {
-    public static final String FRAGMENT_STATE_START_MENU = StartMenuFragment.class.getName();
-
-    public static StartMenuFragment newInstance()
-    {
-        return new StartMenuFragment();
-    }
-
     @Override
     public void onCreate( Bundle savedInstanceState )
     {
@@ -51,27 +44,17 @@ public class StartMenuFragment extends Fragment
     @OnClick( R.id.createGame )
     void onCreateGameClick()
     {
-        final BluetoothFragment btFragment = BluetoothFragment.newInstance( true );
-        getActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
-                .addToBackStack( FRAGMENT_STATE_START_MENU )
-                .add( btFragment, BluetoothFragment.FRAGMENT_TAG )
-                .replace( R.id.main_content, PlayerGameFragment.newInstance( btFragment ) )
-                .commit();
+        final Intent intent = new Intent( getActivity(), GameActivity.class );
+        intent.putExtra( GameActivity.EXTRA_IS_SERVER, true );
+        startActivity( intent );
     }
 
     @OnClick( R.id.joinGame )
     void onJoinGameClick()
     {
-        final BluetoothFragment btFragment = BluetoothFragment.newInstance( false );
-        getActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
-                .addToBackStack( FRAGMENT_STATE_START_MENU )
-                .add( btFragment, BluetoothFragment.FRAGMENT_TAG )
-                .replace( R.id.main_content, ServerListFragment.newInstance( btFragment ) )
-                .commit();
+        final Intent intent = new Intent( getActivity(), GameActivity.class );
+        intent.putExtra( GameActivity.EXTRA_IS_SERVER, false );
+        startActivity( intent );
     }
 
     @OnClick( R.id.settings )

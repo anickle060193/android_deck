@@ -71,19 +71,11 @@ public class BluetoothFragment extends Fragment
 
             enableBluetooth();
 
-            final IntentFilter filter = new IntentFilter();
-            filter.addAction( BluetoothDevice.ACTION_FOUND );
-            filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_STARTED );
-            filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
-            filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
-            filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
-            getActivity().registerReceiver( mReceiver, filter );
-
             if( this.isServer() )
             {
                 if( !this.createServer() )
                 {
-                    MainActivity.backToMenu( getActivity() );
+                    getActivity().finish();
                     Deck.toast( "The server could not be opened." );
                 }
             }
@@ -91,11 +83,31 @@ public class BluetoothFragment extends Fragment
     }
 
     @Override
+    public void onResume()
+    {
+        super.onResume();
+
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction( BluetoothDevice.ACTION_FOUND );
+        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_STARTED );
+        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
+        filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
+        filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
+        getActivity().registerReceiver( mReceiver, filter );
+    }
+
+    @Override
+    public void onPause()
+    {
+        super.onPause();
+
+        getActivity().unregisterReceiver( mReceiver );
+    }
+
+    @Override
     public void onDestroy()
     {
         super.onDestroy();
-
-        getActivity().unregisterReceiver( mReceiver );
 
         if( this.isServer() )
         {
@@ -115,7 +127,7 @@ public class BluetoothFragment extends Fragment
             if( resultCode != Activity.RESULT_OK )
             {
                 Deck.toast( "Bluetooth must be enabled." );
-                MainActivity.backToMenu( getActivity() );
+                getActivity().finish();
             }
         }
         else if( requestCode == BluetoothFragment.REQUEST_MAKE_DISCOVERABLE )
@@ -123,7 +135,7 @@ public class BluetoothFragment extends Fragment
             if( resultCode == Activity.RESULT_CANCELED )
             {
                 Deck.toast( "Must be discoverable to create a server." );
-                MainActivity.backToMenu( getActivity() );
+                getActivity().finish();
             }
         }
     }
@@ -422,7 +434,7 @@ public class BluetoothFragment extends Fragment
                 {
                     Deck.toast( "Failed to connect to server." );
                 }
-                MainActivity.backToMenu( getActivity() );
+                getActivity().finish();
             }
         }
 

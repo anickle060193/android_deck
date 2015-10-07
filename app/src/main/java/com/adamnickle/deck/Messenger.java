@@ -151,7 +151,7 @@ public class Messenger
         }
         else
         {
-            MainActivity.backToMenu( mBluetoothFragment.getActivity() );
+            mBluetoothFragment.getActivity().finish();
             Deck.toast( "Disconnected from server." );
         }
     }

@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.adamnickle.deck.PlayerGameFragment"
-    android:id="@+id/cardTable">
+    android:id="@+id/cardTable"
+    android:background="#123456">
 
     <com.adamnickle.deck.PlayingCardHolderView
         android:layout_width="@dimen/card_width"

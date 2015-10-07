@@ -84,7 +84,7 @@ public class ServerListFragment extends Fragment
 
         mBluetoothFragment.unregisterBluetoothSearchListener( mSearchListener );
 
-        ( (MainActivity)getActivity() ).setIndeterminateProgressVisibility( false );
+        ( (GameActivity)getActivity() ).setIndeterminateProgressVisibility( false );
     }
 
     private final BluetoothSearchListener mSearchListener = new BluetoothSearchListener()
@@ -102,13 +102,13 @@ public class ServerListFragment extends Fragment
         @Override
         public void onDiscoveryStarted()
         {
-            ( (MainActivity)getActivity() ).setIndeterminateProgressVisibility( true );
+            ( (GameActivity)getActivity() ).setIndeterminateProgressVisibility( true );
         }
 
         @Override
         public void onDiscoveryEnded()
         {
-            ( (MainActivity)getActivity() ).setIndeterminateProgressVisibility( false );
+            ( (GameActivity)getActivity() ).setIndeterminateProgressVisibility( false );
         }
     };
 
@@ -143,8 +143,8 @@ public class ServerListFragment extends Fragment
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
-                    .addToBackStack( null )
                     .replace( R.id.main_content, PlayerGameFragment.newInstance( mBluetoothFragment ) )
+                    .add( R.id.above_content, TableGameFragment.newInstance( mBluetoothFragment ) )
                     .commit();
         }
     }
