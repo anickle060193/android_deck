@@ -1,8 +1,8 @@
 package com.adamnickle.deck;
 
+import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,23 +14,21 @@ import com.adamnickle.deck.Game.Card;
 import com.adamnickle.deck.Game.Game;
 import com.adamnickle.deck.Game.Player;
 
-import java.util.List;
 
-
-public class GameFragment extends Fragment
+@SuppressLint("ValidFragment")
+public class GameFragment extends PlayingCardHolderFragment
 {
     private View mMainView;
     private CardTableLayout mCardTable;
 
-    private Messenger mMessenger;
-
-    private Game mGame;
-
     public static GameFragment newInstance( BluetoothFragment bluetoothFragment )
     {
-        final GameFragment gameFragment = new GameFragment();
-        gameFragment.mMessenger = bluetoothFragment.getMessenger();
-        return gameFragment;
+        return new GameFragment( bluetoothFragment.getMessenger() );
+    }
+
+    public GameFragment( Messenger messenger )
+    {
+        super( messenger );
     }
 
     @Override
@@ -40,8 +38,7 @@ public class GameFragment extends Fragment
         setRetainInstance( true );
         setHasOptionsMenu( true );
 
-        mGame = mMessenger.getGame();
-        mGame.registerListener( mGameListener );
+        getGame().registerListener( mGameListener );
     }
 
     @Override
@@ -60,7 +57,7 @@ public class GameFragment extends Fragment
             } );
 
             mCardTable = (CardTableLayout)mMainView.findViewById( R.id.cardTable );
-            mCardTable.setOnCardSendListener( new CardTableLayout.CardSendListener()
+            mCardTable.setOnCardSendListener( new CardTableLayout.OnCardSendListener()
             {
                 @Override
                 public void onCardSend( final Card card )
@@ -70,7 +67,7 @@ public class GameFragment extends Fragment
                         @Override
                         public void onPlayerSelected( final Player player )
                         {
-                            mMessenger.performAction( new Messenger.Action()
+                            getMessenger().performAction( new Messenger.Action()
                             {
                                 @Override
                                 public void run()
@@ -83,13 +80,7 @@ public class GameFragment extends Fragment
                     } );
                 }
             } );
-            for( Player player : mGame.getPlayers() )
-            {
-                if( mMessenger.isMe( player.getAddress() ) )
-                {
-                    mCardTable.setPlayer( player );
-                }
-            }
+            mCardTable.setPlayer( getMessenger().getMe() );
         }
         else
         {
@@ -102,7 +93,7 @@ public class GameFragment extends Fragment
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
         inflater.inflate( R.menu.game, menu );
-        if( mMessenger.isServer() )
+        if( getMessenger().isServer() )
         {
             inflater.inflate( R.menu.game_server, menu );
         }
@@ -143,7 +134,7 @@ public class GameFragment extends Fragment
     {
         super.onDestroy();
 
-        mGame.unregisterListener( mGameListener );
+        getGame().unregisterListener( mGameListener );
     }
 
     private final Game.GameListener mGameListener = new Game.GameListener()
@@ -151,22 +142,12 @@ public class GameFragment extends Fragment
         @Override
         public void onPlayerAdded( Game game, Player player )
         {
-            if( mMessenger.isMe( player.getAddress() ) )
-            {
-                mCardTable.setPlayer( player );
-            }
-
             Deck.toast( player.getName() + " has connected." );
         }
 
         @Override
         public void onPlayerRemoved( Game game, Player player )
         {
-            if( mMessenger.isMe( player.getAddress() ) )
-            {
-                mCardTable.setPlayer( null );
-            }
-
             Deck.toast( player.getName() + " has disconnected." );
         }
     };
@@ -183,24 +164,6 @@ public class GameFragment extends Fragment
         } );
     }
 
-    private interface OnPlayerSelectedListener
-    {
-        void onPlayerSelected( Player player );
-    }
-
-    private void showPlayerSelector( String title, final OnPlayerSelectedListener listener )
-    {
-        final List<Player> players = mGame.getPlayers();
-        Dialog.showSingleChoiceDialog( getActivity(), title, true, players.toArray( new Player[ players.size() ] ), new Dialog.OnSingleChoiceDialogClickListener<Player>()
-        {
-            @Override
-            public void onClick( DialogInterface dialog, Player player )
-            {
-                listener.onPlayerSelected( player );
-            }
-        } );
-    }
-
     private void saveGame()
     {
         Dialog.showTextDialog( getActivity(), "Enter save name:", true, "Save", new Dialog.OnTextDialogClickListener()
@@ -208,7 +171,7 @@ public class GameFragment extends Fragment
             @Override
             public void onClick( DialogInterface dialog, String saveName )
             {
-                if( GameSave.saveGame( getActivity(), mGame, saveName ) )
+                if( GameSave.saveGame( getActivity(), getGame(), saveName ) )
                 {
                     Deck.toast( "Game save was successful!" );
                 }
@@ -231,9 +194,9 @@ public class GameFragment extends Fragment
                 final Game game = GameSave.openGame( getActivity(), saveName );
                 if( game != null )
                 {
-                    if( mGame.hasSamePlayers( game ) )
+                    if( getGame().hasSamePlayers( game ) )
                     {
-                        mMessenger.openGame( game );
+                        getMessenger().openGame( game );
                     }
                     else
                     {

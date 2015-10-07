@@ -17,6 +17,9 @@ import java.io.OutputStreamWriter;
 
 public class Messenger
 {
+    private static final String TABLE_NAME = "Table";
+    private static final String TABLE_ADDRESS = BuildConfig.APPLICATION_ID + ".table_address";
+
     private final BluetoothFragment mBluetoothFragment;
     private final String mAddress;
 
@@ -50,11 +53,31 @@ public class Messenger
         } );
 
         mGame.addPlayer( new Player( mBluetoothFragment.getAdapter().getName(), mAddress ) );
+        mGame.addPlayer( new Player( TABLE_NAME, TABLE_ADDRESS ) );
     }
 
-    public boolean isMe( String address )
+    public Player getMe()
     {
-        return mAddress.equals( address );
+        for( Player player : mGame.getPlayers() )
+        {
+            if( mAddress.equals( player.getAddress() ) )
+            {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    public Player getTable()
+    {
+        for( Player player : mGame.getPlayers() )
+        {
+            if( TABLE_ADDRESS.equals( player.getAddress() ) )
+            {
+                return player;
+            }
+        }
+        return null;
     }
 
     public boolean isServer()

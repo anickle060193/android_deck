@@ -23,7 +23,11 @@ public class MainActivity extends AppCompatActivity
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_main );
         ButterKnife.bind( this );
-        getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
+
+        if( BuildConfig.DEBUG )
+        {
+            getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
+        }
 
         final Toolbar toolbar = (Toolbar)findViewById( R.id.toolbar );
         setSupportActionBar( toolbar );

@@ -15,7 +15,7 @@ import com.adamnickle.deck.Game.Player;
 
 public class CardTableLayout extends FrameLayout
 {
-    public interface CardSendListener
+    public interface OnCardSendListener
     {
         void onCardSend( Card card );
     }
@@ -24,7 +24,7 @@ public class CardTableLayout extends FrameLayout
     private final SparseArray<PlayingCardView> mPlayingCardViews = new SparseArray<>();
     private final SparseArray<PlayingCardView> mDraggingViews = new SparseArray<>();
 
-    private CardSendListener mListener;
+    private OnCardSendListener mListener;
     private Player mPlayer;
 
     private int mOrientation = -1;
@@ -227,7 +227,7 @@ public class CardTableLayout extends FrameLayout
         return false;
     }
 
-    public void setOnCardSendListener( CardSendListener listener )
+    public void setOnCardSendListener( OnCardSendListener listener )
     {
         mListener = listener;
     }
