@@ -33,21 +33,30 @@ public class CardTableLayout extends FrameLayout
     public CardTableLayout( Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes )
     {
         super( context, attrs, defStyleAttr, defStyleRes );
+        initialize();
     }
 
     public CardTableLayout( Context context, AttributeSet attrs, int defStyleAttr )
     {
         super( context, attrs, defStyleAttr );
+        initialize();
     }
 
     public CardTableLayout( Context context, AttributeSet attrs )
     {
         super( context, attrs );
+        initialize();
     }
 
     public CardTableLayout( Context context )
     {
         super( context );
+        initialize();
+    }
+
+    private void initialize()
+    {
+        setClickable( true );
     }
 
     @Override
