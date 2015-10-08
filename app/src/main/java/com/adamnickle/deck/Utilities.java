@@ -36,4 +36,9 @@ public abstract class Utilities
             parent.removeView( view );
         }
     }
+
+    public static float random( float min, float max )
+    {
+        return (float)Math.random() * ( max - min ) + min;
+    }
 }

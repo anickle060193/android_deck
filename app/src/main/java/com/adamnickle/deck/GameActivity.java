@@ -104,7 +104,6 @@ public class GameActivity extends AppCompatActivity
     {
         if( mTableOpen )
         {
-            mAboveContent.setTranslationY( 0.0f );
             mAboveContent.animate()
                     .translationY( -mAboveContent.getHeight() )
                     .setDuration( 300 )
@@ -112,7 +111,6 @@ public class GameActivity extends AppCompatActivity
         }
         else
         {
-            mAboveContent.setTranslationY( -mAboveContent.getHeight() );
             mAboveContent.animate()
                     .translationY( 0.0f )
                     .setDuration( 300 )

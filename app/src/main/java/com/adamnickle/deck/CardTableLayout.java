@@ -123,6 +123,14 @@ public class CardTableLayout extends FrameLayout
                 public void run()
                 {
                     final PlayingCardView view = new PlayingCardView( getContext(), card );
+                    final LayoutParams params = (LayoutParams)view.getLayoutParams();
+                    final int parentWidth = getWidth();
+                    final int parentHeight = getHeight();
+                    final int horizontalOffset = Math.round( Utilities.random( -parentWidth * 0.25f, parentWidth * 0.25f ) );
+                    final int verticalOffset = Math.round( Utilities.random( -parentHeight * 0.25f, parentHeight * 0.25f ) );
+                    params.leftMargin = ( parentWidth - params.width ) / 2 + horizontalOffset;
+                    params.topMargin = ( parentHeight - params.height ) / 2 + verticalOffset;
+                    view.setLayoutParams( params );
                     mPlayingCardViews.put( card.getCardId(), view );
                     addView( view );
                 }

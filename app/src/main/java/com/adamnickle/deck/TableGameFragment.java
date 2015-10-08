@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.adamnickle.deck.Game.Card;
-import com.adamnickle.deck.Game.Player;
 
 
 @SuppressLint("ValidFragment")
@@ -56,20 +55,13 @@ public class TableGameFragment extends AbstractGameFragment
         @Override
         public void onCardSend( final Card card )
         {
-            showPlayerSelector( "Send card to:", new OnPlayerSelectedListener()
+            getMessenger().performAction( new Messenger.Action()
             {
                 @Override
-                public void onPlayerSelected( final Player player )
+                public void run()
                 {
-                    getMessenger().performAction( new Messenger.Action()
-                    {
-                        @Override
-                        public void run()
-                        {
-                            mCardTableLayout.getPlayer().removeCard( card );
-                            player.addCard( card );
-                        }
-                    } );
+                    mCardTableLayout.getPlayer().removeCard( card );
+                    getMessenger().getMe().addCard( card );
                 }
             } );
         }

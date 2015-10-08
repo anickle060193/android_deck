@@ -104,6 +104,7 @@ public class PlayingCardView extends ImageView
                 return true;
 
             case MotionEvent.ACTION_DOWN:
+                PlayingCardView.this.bringToFront();
                 stop();
                 final int[] location = new int[ 2 ];
                 this.getLocationOnScreen( location );
