@@ -20,6 +20,12 @@
         </activity>
         <activity android:name=".GameActivity" >
         </activity>
+
+        <service
+            android:name=".GamePresentationService"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
     </application>
 
 </manifest>

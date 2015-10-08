@@ -1,9 +1,14 @@
 package com.adamnickle.deck;
 
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.MediaRouteActionProvider;
+import android.support.v7.media.MediaRouteSelector;
+import android.support.v7.media.MediaRouter;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -11,6 +16,11 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
+
+import com.google.android.gms.cast.CastDevice;
+import com.google.android.gms.cast.CastMediaControlIntent;
+import com.google.android.gms.cast.CastRemoteDisplayLocalService;
+import com.google.android.gms.common.api.Status;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -22,6 +32,10 @@ public class GameActivity extends AppCompatActivity
 
     @Bind( R.id.progress_bar ) ProgressBar mIndeterminateProgressBar;
     @Bind( R.id.above_content ) View mAboveContent;
+
+    private MediaRouter mMediaRouter;
+    private MediaRouteSelector mMediaRouteSelector;
+    private CastDevice mSelectedDevice;
 
     private boolean mTableOpen = false;
 
@@ -51,6 +65,12 @@ public class GameActivity extends AppCompatActivity
             }
         } );
 
+        mMediaRouter = MediaRouter.getInstance( getApplicationContext() );
+
+        mMediaRouteSelector = new MediaRouteSelector.Builder()
+                .addControlCategory( CastMediaControlIntent.categoryForCast( BuildConfig.APPLICATION_ID ) )
+                .build();
+
         if( savedInstanceState == null )
         {
             final Intent intent = getIntent();
@@ -79,27 +99,6 @@ public class GameActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu( Menu menu )
-    {
-        getMenuInflater().inflate( R.menu.game, menu );
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected( MenuItem item )
-    {
-        switch( item.getItemId() )
-        {
-            case R.id.toggleTable:
-                toggleTable();
-                return true;
-
-            default:
-                return super.onOptionsItemSelected( item );
-        }
-    }
-
     private void toggleTable()
     {
         if( mTableOpen )
@@ -123,4 +122,90 @@ public class GameActivity extends AppCompatActivity
     {
         mIndeterminateProgressBar.setVisibility( visible ? View.VISIBLE : View.GONE );
     }
+
+    @Override
+    public boolean onCreateOptionsMenu( Menu menu )
+    {
+        getMenuInflater().inflate( R.menu.game, menu );
+
+        final MenuItem mediaRouteMenuItem = menu.findItem( R.id.media_route_menu_item );
+        final MediaRouteActionProvider mediaRouteActionProvider = (MediaRouteActionProvider)MenuItemCompat.getActionProvider( mediaRouteMenuItem );
+        mediaRouteActionProvider.setRouteSelector( mMediaRouteSelector );
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+        switch( item.getItemId() )
+        {
+            case R.id.toggleTable:
+                toggleTable();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected( item );
+        }
+    }
+
+    @Override
+    protected void onStart()
+    {
+        super.onStart();
+
+        mMediaRouter.addCallback( mMediaRouteSelector, mMediaRouterCallback, MediaRouter.CALLBACK_FLAG_REQUEST_DISCOVERY );
+    }
+
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+
+        mMediaRouter.removeCallback( mMediaRouterCallback );
+    }
+
+    private final MediaRouter.Callback mMediaRouterCallback = new MediaRouter.Callback()
+    {
+        @Override
+        public void onRouteSelected( MediaRouter router, MediaRouter.RouteInfo route )
+        {
+            mSelectedDevice = CastDevice.getFromBundle( route.getExtras() );
+
+            final Intent intent = new Intent( GameActivity.this, GameActivity.class );
+            intent.setFlags( Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP );
+            final PendingIntent notificationPendingIntent = PendingIntent.getActivity( GameActivity.this, 0, intent, 0 );
+
+            final CastRemoteDisplayLocalService.NotificationSettings settings = new CastRemoteDisplayLocalService.NotificationSettings.Builder()
+                    .setNotificationPendingIntent( notificationPendingIntent )
+                    .build();
+
+            CastRemoteDisplayLocalService.startService(
+                    getApplicationContext(),
+                    GamePresentationService.class,
+                    getString( R.string.cast_application_id ),
+                    mSelectedDevice,
+                    settings,
+                    new CastRemoteDisplayLocalService.Callbacks()
+                    {
+                        @Override
+                        public void onRemoteDisplaySessionStarted( CastRemoteDisplayLocalService castRemoteDisplayLocalService )
+                        {
+                            // Initialize sender UI
+                        }
+
+                        @Override
+                        public void onRemoteDisplaySessionError( Status status )
+                        {
+                            Deck.toast( "An error occurred during initialization:" + status.getStatusMessage() );
+                        }
+                    } );
+        }
+
+        @Override
+        public void onRouteUnselected( MediaRouter router, MediaRouter.RouteInfo route )
+        {
+            CastRemoteDisplayLocalService.stopService();
+        }
+    };
 }
