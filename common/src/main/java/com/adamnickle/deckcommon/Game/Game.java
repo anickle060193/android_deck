@@ -1,10 +1,10 @@
-package com.adamnickle.deck.Game;
+package com.adamnickle.deckcommon.Game;
 
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
-import com.adamnickle.deck.Diff;
-import com.adamnickle.deck.Listenable;
+import com.adamnickle.deckcommon.Diff;
+import com.adamnickle.deckcommon.Listenable;
 
 import java.io.IOException;
 import java.util.ArrayList;

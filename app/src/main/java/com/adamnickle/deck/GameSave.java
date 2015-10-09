@@ -4,7 +4,8 @@ import android.content.Context;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
-import com.adamnickle.deck.Game.Game;
+import com.adamnickle.deckcommon.Game.Game;
+import com.adamnickle.deckcommon.Utilities;
 
 import java.io.File;
 import java.io.FileOutputStream;

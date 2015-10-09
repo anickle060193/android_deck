@@ -1,4 +1,4 @@
-<com.adamnickle.deck.CardTableLayout
+<com.adamnickle.deckcommon.CardTableLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -7,7 +7,7 @@
     android:id="@+id/cardTable"
     android:background="#123456">
 
-    <com.adamnickle.deck.PlayingCardHolderView
+    <com.adamnickle.deckcommon.PlayingCardHolderView
         android:layout_width="@dimen/card_width"
         android:layout_height="@dimen/card_height"
         android:layout_margin="8dp"
@@ -19,4 +19,4 @@
         android:gravity="center"
         android:text="I'm a game!"/>
 
-</com.adamnickle.deck.CardTableLayout>
+</com.adamnickle.deckcommon.CardTableLayout>

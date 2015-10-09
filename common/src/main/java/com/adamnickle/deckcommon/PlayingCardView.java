@@ -1,4 +1,4 @@
-package com.adamnickle.deck;
+package com.adamnickle.deckcommon;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deckcommon.Game.Card;
 
 
 @SuppressLint("ViewConstructor")

@@ -4,8 +4,8 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.support.v4.app.Fragment;
 
-import com.adamnickle.deck.Game.Game;
-import com.adamnickle.deck.Game.Player;
+import com.adamnickle.deckcommon.Game.Game;
+import com.adamnickle.deckcommon.Game.Player;
 
 import java.util.List;
 

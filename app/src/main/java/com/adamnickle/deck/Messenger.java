@@ -4,9 +4,9 @@ import android.bluetooth.BluetoothDevice;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
-import com.adamnickle.deck.Game.Card;
-import com.adamnickle.deck.Game.Game;
-import com.adamnickle.deck.Game.Player;
+import com.adamnickle.deckcommon.Game.Card;
+import com.adamnickle.deckcommon.Game.Game;
+import com.adamnickle.deckcommon.Game.Player;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

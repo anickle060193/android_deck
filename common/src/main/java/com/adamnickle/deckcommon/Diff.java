@@ -1,4 +1,4 @@
-package com.adamnickle.deck;
+package com.adamnickle.deckcommon;
 
 import java.util.ArrayList;
 import java.util.Collection;

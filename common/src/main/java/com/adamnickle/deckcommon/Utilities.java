@@ -1,4 +1,4 @@
-package com.adamnickle.deck;
+package com.adamnickle.deckcommon;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,7 +21,7 @@ public abstract class Utilities
             }
             catch( IOException ex )
             {
-                Deck.log( "An error occurred closing " + closeable, ex );
+                //ajn Deck.log( "An error occurred closing " + closeable, ex );
                 return false;
             }
         }

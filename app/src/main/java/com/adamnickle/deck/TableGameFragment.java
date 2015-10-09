@@ -6,7 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.adamnickle.deck.Game.Card;
+import com.adamnickle.deckcommon.CardTableLayout;
+import com.adamnickle.deckcommon.Game.Card;
+import com.adamnickle.deckcommon.Utilities;
 
 
 @SuppressLint("ValidFragment")

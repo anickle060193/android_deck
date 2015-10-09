@@ -1,4 +1,4 @@
-package com.adamnickle.deck;
+package com.adamnickle.deckcommon;
 
 import android.annotation.TargetApi;
 import android.content.Context;

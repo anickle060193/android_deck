@@ -1,4 +1,4 @@
-package com.adamnickle.deck;
+package com.adamnickle.deckcommon;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -9,8 +9,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.adamnickle.deck.Game.Card;
-import com.adamnickle.deck.Game.Player;
+import com.adamnickle.deckcommon.Game.Card;
+import com.adamnickle.deckcommon.Game.Player;
 
 
 public class CardTableLayout extends FrameLayout
@@ -80,8 +80,6 @@ public class CardTableLayout extends FrameLayout
     protected void onLayout( boolean changed, int left, int top, int right, int bottom )
     {
         super.onLayout( changed, left, top, right, bottom );
-
-        Deck.log( "onLayout()" );
 
         final int newOrientation = getResources().getConfiguration().orientation;
         if( newOrientation != mOrientation && mOrientation != -1 )

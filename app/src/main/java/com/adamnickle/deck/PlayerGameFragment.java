@@ -10,9 +10,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.adamnickle.deck.Game.Card;
-import com.adamnickle.deck.Game.Game;
-import com.adamnickle.deck.Game.Player;
+import com.adamnickle.deckcommon.CardTableLayout;
+import com.adamnickle.deckcommon.Game.Card;
+import com.adamnickle.deckcommon.Game.Game;
+import com.adamnickle.deckcommon.Game.Player;
+import com.adamnickle.deckcommon.Utilities;
 
 
 @SuppressLint("ValidFragment")

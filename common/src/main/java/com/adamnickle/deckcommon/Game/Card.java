@@ -1,11 +1,11 @@
-package com.adamnickle.deck.Game;
+package com.adamnickle.deckcommon.Game;
 
 import android.support.annotation.DrawableRes;
 import android.support.annotation.IntRange;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
-import com.adamnickle.deck.R;
+import com.adamnickle.deckcommon.R;
 
 import java.io.IOException;
 
