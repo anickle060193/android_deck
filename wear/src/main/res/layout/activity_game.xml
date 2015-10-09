@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.wearable.view.WatchViewStub
+<fragment
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/watch_view_stub"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:rectLayout="@layout/rect_activity_game"
-    app:roundLayout="@layout/round_activity_game"
     tools:context=".GameActivity"
-    tools:deviceIds="wear" />
+    android:name="com.adamnickle.deck.PlayerGameFragment"
+    tools:layout="@layout/fragment_player_game"
+    android:id="@+id/playerGameFragment"/>
