@@ -24,6 +24,20 @@ import java.util.UUID;
 
 public class BluetoothFragment extends Fragment
 {
+    public interface BluetoothSearchListener
+    {
+        void onDeviceFound( BluetoothDevice device );
+        void onDiscoveryStarted();
+        void onDiscoveryEnded();
+    }
+
+    public interface BluetoothListener
+    {
+        void onDeviceConnect( BluetoothDevice device );
+        void onDeviceDisconnect( BluetoothDevice device );
+        void onDataReceived( BluetoothDevice device, byte[] data );
+    }
+
     public static final String FRAGMENT_TAG = BluetoothFragment.class.getName();
 
     private static final int REQUEST_ENABLE_BT = 1001;
@@ -36,10 +50,10 @@ public class BluetoothFragment extends Fragment
     private final BluetoothAdapter mAdapter = BluetoothAdapter.getDefaultAdapter();
 
     private final HashMap<String, ConnectedThread> mConnectedThreads = new HashMap<>();
-    private final Messenger mMessenger;
     private AcceptThread mAcceptThread;
     private boolean mIsServer;
 
+    private final List<BluetoothListener> mListeners = new ArrayList<>();
     private final List<BluetoothSearchListener> mSearchListeners = new ArrayList<>();
 
     public static BluetoothFragment newInstance( boolean isServer )
@@ -47,11 +61,6 @@ public class BluetoothFragment extends Fragment
         final BluetoothFragment fragment = new BluetoothFragment();
         fragment.mIsServer = isServer;
         return fragment;
-    }
-
-    public BluetoothFragment()
-    {
-        mMessenger = new Messenger( this );
     }
 
     @Override
@@ -201,13 +210,13 @@ public class BluetoothFragment extends Fragment
                 switch( scanMode )
                 {
                     case BluetoothAdapter.SCAN_MODE_NONE:
-                        Deck.toast( "Device is not connectable or discoverable." );
+                        //ajn Deck.toast( "Device is not connectable or discoverable." );
                         break;
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
-                        Deck.toast( "Device is connectable." );
+                        //ajn Deck.toast( "Device is connectable." );
                         break;
                     case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-                        Deck.toast( "Device is discoverable." );
+                        //ajn Deck.toast( "Device is discoverable." );
                         break;
                 }
             }
@@ -222,7 +231,7 @@ public class BluetoothFragment extends Fragment
     {
         if( mSearchListeners.contains( listener ) )
         {
-            throw new IllegalStateException( "BluetoothSearchListener " + listener + " is already registered." );
+            throw new IllegalStateException( BluetoothSearchListener.class.getSimpleName() + " " + listener + " is already registered." );
         }
         mSearchListeners.add( listener );
     }
@@ -231,13 +240,25 @@ public class BluetoothFragment extends Fragment
     {
         if( !mSearchListeners.remove( listener ) )
         {
-            throw new IllegalStateException( "BluetoothSearchListener " + listener + " was never registered." );
+            throw new IllegalStateException( BluetoothSearchListener.class.getSimpleName() + " " + listener + " was never registered." );
         }
     }
 
-    public Messenger getMessenger()
+    public void registerBluetoothListener( BluetoothListener listener )
     {
-        return mMessenger;
+        if( mListeners.contains( listener ) )
+        {
+            throw new IllegalStateException( BluetoothListener.class.getSimpleName() + " " + listener + " is already registered." );
+        }
+        mListeners.add( listener );
+    }
+
+    public void unregisterBluetoothListener( BluetoothListener listener )
+    {
+        if( !mListeners.remove( listener ) )
+        {
+            throw new IllegalStateException( BluetoothListener.class.getSimpleName() + " " + listener + " was never registered." );
+        }
     }
 
     public void findDevices()
@@ -336,18 +357,24 @@ public class BluetoothFragment extends Fragment
         }
     }
 
-    private void onDeviceConnected( ConnectedThread thread )
+    private void onDeviceConnect( ConnectedThread thread )
     {
         final BluetoothDevice device = thread.mSocket.getRemoteDevice();
         mConnectedThreads.put( device.getAddress(), thread );
-        mMessenger.onDeviceConnect( device );
+        for( BluetoothListener listener : mListeners )
+        {
+            listener.onDeviceConnect( device );
+        }
     }
 
-    private void onDeviceDisconnected( ConnectedThread thread )
+    private void onDeviceDisconnect( ConnectedThread thread )
     {
         final BluetoothDevice device = thread.mSocket.getRemoteDevice();
         mConnectedThreads.remove( device.getAddress() );
-        mMessenger.onDeviceDisconnect( device );
+        for( BluetoothListener listener : mListeners )
+        {
+            listener.onDeviceDisconnect( device );
+        }
     }
 
     private class AcceptThread extends Thread
@@ -471,7 +498,7 @@ public class BluetoothFragment extends Fragment
         @Override
         public void run()
         {
-            onDeviceConnected( this );
+            onDeviceConnect( this );
 
             final byte[] buffer = new byte[ 1024 ];
 
@@ -481,13 +508,17 @@ public class BluetoothFragment extends Fragment
                 {
                     final int bytes = mInputStream.read( buffer );
                     final byte[] data = Arrays.copyOf( buffer, bytes );
-                    mMessenger.onDataReceived( mDevice, data );
+
+                    for( BluetoothListener listener : mListeners )
+                    {
+                        listener.onDataReceived( mDevice, data );
+                    }
                 }
                 catch( IOException ex )
                 {
                     Deck.log( "An error occurred while reading from a connection.", ex );
 
-                    onDeviceDisconnected( this );
+                    onDeviceDisconnect( this );
                     break;
                 }
             }

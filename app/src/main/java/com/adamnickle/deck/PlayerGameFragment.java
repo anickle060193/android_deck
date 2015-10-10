@@ -21,9 +21,9 @@ public class PlayerGameFragment extends AbstractGameFragment
     private View mMainView;
     private CardTableLayout mCardTable;
 
-    public static PlayerGameFragment newInstance( BluetoothFragment bluetoothFragment )
+    public static PlayerGameFragment newInstance( Messenger messenger )
     {
-        return new PlayerGameFragment( bluetoothFragment.getMessenger() );
+        return new PlayerGameFragment( messenger );
     }
 
     public PlayerGameFragment( Messenger messenger )

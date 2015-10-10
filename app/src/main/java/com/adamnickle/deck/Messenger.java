@@ -35,6 +35,8 @@ public class Messenger
         mBluetoothFragment = fragment;
         mAddress = mBluetoothFragment.getAdapter().getAddress();
 
+        mBluetoothFragment.registerBluetoothListener( mBluetoothListener );
+
         mGame.registerListener( new Game.GameListener()
         {
             @Override
@@ -129,32 +131,66 @@ public class Messenger
         onGameReceived( game );
     }
 
-    //TODO Create bluetooth listener and remove this
-    public void onDeviceConnect( BluetoothDevice device )
+    private final BluetoothFragment.BluetoothListener mBluetoothListener = new BluetoothFragment.BluetoothListener()
     {
-        if( this.isServer() )
+        @Override
+        public void onDeviceConnect( BluetoothDevice device )
         {
-            final Player player = new Player( device.getName(), device.getAddress() );
-            mGame.addPlayer( player );
-            sendUpdatedGame();
+            if( Messenger.this.isServer() )
+            {
+                final Player player = new Player( device.getName(), device.getAddress() );
+                mGame.addPlayer( player );
+                sendUpdatedGame();
+            }
         }
-    }
 
-    //TODO Create bluetooth listener and remove this
-    public void onDeviceDisconnect( BluetoothDevice device )
-    {
-        if( this.isServer() )
+        @Override
+        public void onDeviceDisconnect( BluetoothDevice device )
         {
-            final Player player = new Player( device.getName(), device.getAddress() );
-            mGame.removePlayer( player );
-            sendUpdatedGame();
+            if( Messenger.this.isServer() )
+            {
+                final Player player = new Player( device.getName(), device.getAddress() );
+                mGame.removePlayer( player );
+                sendUpdatedGame();
+            }
+            else
+            {
+                mBluetoothFragment.getActivity().finish();
+                Deck.toast( "Disconnected from server." );
+            }
         }
-        else
+
+        @Override
+        public void onDataReceived( BluetoothDevice device, byte[] data )
         {
-            mBluetoothFragment.getActivity().finish();
-            Deck.toast( "Disconnected from server." );
+            final ByteArrayInputStream input = new ByteArrayInputStream( data );
+            final InputStreamReader inputReader = new InputStreamReader( input );
+            final JsonReader reader = new JsonReader( inputReader );
+            try
+            {
+                final Game updatedGame = Game.readFromJson( reader );
+                if( updatedGame != null )
+                {
+                    onGameReceived( updatedGame );
+                }
+            }
+            catch( IOException ex )
+            {
+                Deck.debugToast( "An error occurred reading updated Game.", ex );
+            }
+            finally
+            {
+                try
+                {
+                    reader.close();
+                }
+                catch( IOException ex )
+                {
+                    Deck.debugToast( "An error occurred closing the JSON Reader", ex );
+                }
+            }
         }
-    }
+    };
 
     private void onGameReceived( Game game )
     {
@@ -165,36 +201,6 @@ public class Messenger
         if( this.isServer() )
         {
             sendUpdatedGame();
-        }
-    }
-
-    public void onDataReceived( BluetoothDevice device, byte[] data )
-    {
-        final ByteArrayInputStream input = new ByteArrayInputStream( data );
-        final InputStreamReader inputReader = new InputStreamReader( input );
-        final JsonReader reader = new JsonReader( inputReader );
-        try
-        {
-            final Game updatedGame = Game.readFromJson( reader );
-            if( updatedGame != null )
-            {
-                onGameReceived( updatedGame );
-            }
-        }
-        catch( IOException ex )
-        {
-            Deck.debugToast( "An error occurred reading updated Game.", ex );
-        }
-        finally
-        {
-            try
-            {
-                reader.close();
-            }
-            catch( IOException ex )
-            {
-                Deck.debugToast( "An error occurred closing the JSON Reader", ex );
-            }
         }
     }
 

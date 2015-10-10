@@ -56,12 +56,13 @@ public class GameActivity extends AppCompatActivity
             if( isServer )
             {
                 final BluetoothFragment btFragment = BluetoothFragment.newInstance( true );
+                final Messenger messenger = new Messenger( btFragment );
                 getSupportFragmentManager()
                         .beginTransaction()
                         .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
                         .add( btFragment, BluetoothFragment.FRAGMENT_TAG )
-                        .add( R.id.main_content, PlayerGameFragment.newInstance( btFragment ) )
-                        .add( R.id.above_content, TableGameFragment.newInstance( btFragment ) )
+                        .add( R.id.main_content, PlayerGameFragment.newInstance( messenger ) )
+                        .add( R.id.above_content, TableGameFragment.newInstance( messenger ) )
                         .commit();
             }
             else

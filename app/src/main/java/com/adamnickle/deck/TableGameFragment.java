@@ -18,9 +18,9 @@ public class TableGameFragment extends AbstractGameFragment
     private View mMainView;
     private CardTableLayout mCardTableLayout;
 
-    public static TableGameFragment newInstance( BluetoothFragment bluetoothFragment )
+    public static TableGameFragment newInstance( Messenger messenger )
     {
-        return new TableGameFragment( bluetoothFragment.getMessenger() );
+        return new TableGameFragment( messenger );
     }
 
     public TableGameFragment( Messenger messenger )

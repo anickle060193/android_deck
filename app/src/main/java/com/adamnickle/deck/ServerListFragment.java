@@ -87,7 +87,7 @@ public class ServerListFragment extends Fragment
         ( (GameActivity)getActivity() ).setIndeterminateProgressVisibility( false );
     }
 
-    private final BluetoothSearchListener mSearchListener = new BluetoothSearchListener()
+    private final BluetoothFragment.BluetoothSearchListener mSearchListener = new BluetoothFragment.BluetoothSearchListener()
     {
         @Override
         public void onDeviceFound( BluetoothDevice device )
@@ -140,11 +140,12 @@ public class ServerListFragment extends Fragment
         void onServerItemClick()
         {
             mBluetoothFragment.connectToDevice( Device );
+            final Messenger messenger = new Messenger( mBluetoothFragment );
             getActivity().getSupportFragmentManager()
                     .beginTransaction()
                     .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
-                    .replace( R.id.main_content, PlayerGameFragment.newInstance( mBluetoothFragment ) )
-                    .add( R.id.above_content, TableGameFragment.newInstance( mBluetoothFragment ) )
+                    .replace( R.id.main_content, PlayerGameFragment.newInstance( messenger ) )
+                    .add( R.id.above_content, TableGameFragment.newInstance( messenger ) )
                     .commit();
         }
     }
