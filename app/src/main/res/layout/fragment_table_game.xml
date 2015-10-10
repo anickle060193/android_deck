@@ -2,10 +2,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="@dimen/table_height"
+    style="@style/TableStyle"
+    android:background="#654321"
     tools:context="com.adamnickle.deck.TableGameFragment"
-    android:id="@+id/cardTable"
-    android:background="#654321">
+    android:id="@+id/cardTable">
 
     <com.adamnickle.deck.PlayingCardHolderView
         android:layout_width="@dimen/card_width"

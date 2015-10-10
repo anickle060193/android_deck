@@ -3,6 +3,9 @@ package com.adamnickle.deck;
 import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -30,6 +33,7 @@ public class TableGameFragment extends AbstractGameFragment
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
+        setHasOptionsMenu( true );
     }
 
     @Override
@@ -48,6 +52,26 @@ public class TableGameFragment extends AbstractGameFragment
             Utilities.removeFromParent( mMainView );
         }
         return mMainView;
+    }
+
+    @Override
+    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
+    {
+        inflater.inflate( R.menu.game, menu );
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+        switch( item.getItemId() )
+        {
+            case R.id.toggleTable:
+                ( (GameActivity)getActivity() ).toggleTable();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected( item );
+        }
     }
 
     private final CardTableLayout.OnCardSendListener mOnCardSendListener = new CardTableLayout.OnCardSendListener()

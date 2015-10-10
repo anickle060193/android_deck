@@ -16,4 +16,7 @@
         <item name="elevation">3dp</item>
     </style>
 
+    <style name="TableStyle">
+    </style>
+
 </resources>

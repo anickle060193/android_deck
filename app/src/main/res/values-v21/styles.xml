@@ -6,4 +6,8 @@
         <item name="android:popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
     </style>
 
+    <style name="TableStyle">
+        <item name="android:elevation">3dp</item>
+    </style>
+
 </resources>

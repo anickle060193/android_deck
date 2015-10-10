@@ -7,4 +7,6 @@
     <dimen name="card_height">126dp</dimen>
 
     <dimen name="card_holder_margin">16dp</dimen>
+
+    <dimen name="table_height">300dp</dimen>
 </resources>
