@@ -11,6 +11,52 @@ public final class Dialog
 {
     private Dialog() { }
 
+    public interface OnConfirmationListener
+    {
+        void onOK();
+        void onCancel();
+    }
+
+    public static void showConfirmation( Context context, final String title, final String message, final String positiveButtonText, final String negativeButtonText, final OnConfirmationListener listener )
+    {
+        new AlertDialog.Builder( context )
+                .setTitle( title )
+                .setMessage( message )
+                .setPositiveButton( positiveButtonText, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialog, int which )
+                    {
+                        dialog.dismiss();
+                    }
+                } )
+                .setNegativeButton( negativeButtonText, new DialogInterface.OnClickListener()
+                {
+                    @Override
+                    public void onClick( DialogInterface dialog, int which )
+                    {
+                        dialog.cancel();
+                    }
+                } )
+                .setOnDismissListener( new DialogInterface.OnDismissListener()
+                {
+                    @Override
+                    public void onDismiss( DialogInterface dialog )
+                    {
+                        listener.onOK();
+                    }
+                } )
+                .setOnCancelListener( new DialogInterface.OnCancelListener()
+                {
+                    @Override
+                    public void onCancel( DialogInterface dialog )
+                    {
+                        listener.onCancel();
+                    }
+                } )
+                .show();
+    }
+
     public static void showAlert( Context context, final String title, final String message )
     {
         new AlertDialog.Builder( context )

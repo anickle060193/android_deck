@@ -2,6 +2,7 @@ package com.adamnickle.deck;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -10,16 +11,15 @@ import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
-
 
 public class GameActivity extends AppCompatActivity
 {
     public static final String EXTRA_IS_SERVER = BuildConfig.APPLICATION_ID + ".extra.is_server";
 
-    @Bind( R.id.progress_bar ) ProgressBar mIndeterminateProgressBar;
-    @Bind( R.id.above_content ) View mAboveContent;
+    private static final String KEY_TABLE_OPEN = GameActivity.class.getName() + ".table_open";
+
+    private ProgressBar mIndeterminateProgressBar;
+    private View mAboveContent;
 
     private boolean mTableOpen = false;
 
@@ -27,7 +27,6 @@ public class GameActivity extends AppCompatActivity
     {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.activity_game );
-        ButterKnife.bind( this );
 
         if( BuildConfig.DEBUG )
         {
@@ -37,17 +36,8 @@ public class GameActivity extends AppCompatActivity
         final Toolbar toolbar = (Toolbar)findViewById( R.id.toolbar );
         setSupportActionBar( toolbar );
 
-        final View rootView = findViewById( R.id.rootView );
-        rootView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
-        {
-            @Override
-            public void onGlobalLayout()
-            {
-                rootView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
-
-                closeTable( false );
-            }
-        } );
+        mIndeterminateProgressBar = (ProgressBar)findViewById( R.id.progress_bar );
+        mAboveContent = findViewById( R.id.above_content );
 
         if( savedInstanceState == null )
         {
@@ -76,6 +66,37 @@ public class GameActivity extends AppCompatActivity
                         .commit();
             }
         }
+        else
+        {
+            mTableOpen = savedInstanceState.getBoolean( KEY_TABLE_OPEN, false );
+        }
+
+        final View rootView = findViewById( R.id.rootView );
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
+        {
+            @Override
+            public void onGlobalLayout()
+            {
+                rootView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
+
+                if( mTableOpen )
+                {
+                    openTable( false );
+                }
+                else
+                {
+                    closeTable( false );
+                }
+            }
+        } );
+    }
+
+    @Override
+    protected void onSaveInstanceState( Bundle outState )
+    {
+        super.onSaveInstanceState( outState );
+
+        outState.putBoolean( KEY_TABLE_OPEN, mTableOpen );
     }
 
     private void translateAboveContent( float toTranslationY, boolean animate )
@@ -135,5 +156,44 @@ public class GameActivity extends AppCompatActivity
     public void setIndeterminateProgressVisibility( boolean visible )
     {
         mIndeterminateProgressBar.setVisibility( visible ? View.VISIBLE : View.GONE );
+    }
+
+    private boolean isGameRunning()
+    {
+        final Fragment fragment = getSupportFragmentManager().findFragmentById( R.id.main_content );
+        return fragment instanceof PlayerGameFragment;
+    }
+
+    @Override
+    public void onBackPressed()
+    {
+        if( isTableOpen() )
+        {
+            closeTable();
+        }
+        else
+        {
+            if( isGameRunning() )
+            {
+                Dialog.showConfirmation( this, "Leaving Game", "Are you sure you want to leave the game?", "Yes", "Cancel", new Dialog.OnConfirmationListener()
+                {
+                    @Override
+                    public void onOK()
+                    {
+                        GameActivity.super.onBackPressed();
+                    }
+
+                    @Override
+                    public void onCancel()
+                    {
+                        // Do nothing
+                    }
+                } );
+            }
+            else
+            {
+                super.onBackPressed();
+            }
+        }
     }
 }
