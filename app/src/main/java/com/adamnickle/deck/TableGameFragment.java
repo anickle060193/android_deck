@@ -74,20 +74,31 @@ public class TableGameFragment extends AbstractGameFragment
         }
     }
 
+    private void sendCardToPlayer( final Card card )
+    {
+        getMessenger().performAction( new Messenger.Action()
+        {
+            @Override
+            public void run()
+            {
+                mCardTableLayout.getPlayer().removeCard( card );
+                getMessenger().getMe().addCard( card );
+            }
+        } );
+    }
+
     private final CardTableLayout.OnCardSendListener mOnCardSendListener = new CardTableLayout.OnCardSendListener()
     {
         @Override
-        public void onCardSend( final Card card )
+        public void onCardInHolder( final Card card )
         {
-            getMessenger().performAction( new Messenger.Action()
-            {
-                @Override
-                public void run()
-                {
-                    mCardTableLayout.getPlayer().removeCard( card );
-                    getMessenger().getMe().addCard( card );
-                }
-            } );
+            sendCardToPlayer( card );
+        }
+
+        @Override
+        public void onCardOutside( final Card card )
+        {
+            sendCardToPlayer( card );
         }
     };
 }

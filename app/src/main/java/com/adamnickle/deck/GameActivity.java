@@ -45,7 +45,7 @@ public class GameActivity extends AppCompatActivity
             {
                 rootView.getViewTreeObserver().removeOnGlobalLayoutListener( this );
 
-                mAboveContent.setTranslationY( -mAboveContent.getHeight() );
+                closeTable( false );
             }
         } );
 
@@ -78,23 +78,58 @@ public class GameActivity extends AppCompatActivity
         }
     }
 
-    public void toggleTable()
+    private void translateAboveContent( float toTranslationY, boolean animate )
     {
-        if( mTableOpen )
+        if( animate )
         {
             mAboveContent.animate()
-                    .translationY( -mAboveContent.getHeight() )
+                    .translationY( toTranslationY )
                     .setDuration( 300 )
                     .start();
         }
         else
         {
-            mAboveContent.animate()
-                    .translationY( 0.0f )
-                    .setDuration( 300 )
-                    .start();
+            mAboveContent.setTranslationY( toTranslationY );
         }
-        mTableOpen = !mTableOpen;
+    }
+
+    public void closeTable( boolean animate )
+    {
+        mTableOpen = false;
+        translateAboveContent( -mAboveContent.getHeight(), animate );
+    }
+
+    public void closeTable()
+    {
+        closeTable( true );
+    }
+
+    public void openTable( boolean animate )
+    {
+        mTableOpen = true;
+        translateAboveContent( 0.0f, animate );
+    }
+
+    public void openTable()
+    {
+        openTable( true );
+    }
+
+    public void toggleTable()
+    {
+        if( mTableOpen )
+        {
+            closeTable();
+        }
+        else
+        {
+            openTable();
+        }
+    }
+
+    public boolean isTableOpen()
+    {
+        return mTableOpen;
     }
 
     public void setIndeterminateProgressVisibility( boolean visible )

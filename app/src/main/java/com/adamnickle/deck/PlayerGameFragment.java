@@ -52,7 +52,15 @@ public class PlayerGameFragment extends AbstractGameFragment
                 @Override
                 public void onClick( View v )
                 {
-                    mCardTable.getPlayer().addCard( new Card() );
+                    final GameActivity gameActivity = (GameActivity)getActivity();
+                    if( gameActivity.isTableOpen() )
+                    {
+                        gameActivity.closeTable();
+                    }
+                    else
+                    {
+                        mCardTable.getPlayer().addCard( new Card() );
+                    }
                 }
             } );
 
@@ -60,7 +68,7 @@ public class PlayerGameFragment extends AbstractGameFragment
             mCardTable.setOnCardSendListener( new CardTableLayout.OnCardSendListener()
             {
                 @Override
-                public void onCardSend( final Card card )
+                public void onCardInHolder( final Card card )
                 {
                     showPlayerSelector( "Send card to:", new OnPlayerSelectedListener()
                     {
@@ -78,6 +86,12 @@ public class PlayerGameFragment extends AbstractGameFragment
                             } );
                         }
                     } );
+                }
+
+                @Override
+                public void onCardOutside( Card card )
+                {
+                    // Do nothing
                 }
             } );
             mCardTable.setPlayer( getMessenger().getMe() );

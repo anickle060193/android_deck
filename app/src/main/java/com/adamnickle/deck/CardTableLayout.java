@@ -17,7 +17,8 @@ public class CardTableLayout extends FrameLayout
 {
     public interface OnCardSendListener
     {
-        void onCardSend( Card card );
+        void onCardInHolder( Card card );
+        void onCardOutside( Card card );
     }
 
     private PlayingCardHolderView mCardHolder;
@@ -80,8 +81,6 @@ public class CardTableLayout extends FrameLayout
     protected void onLayout( boolean changed, int left, int top, int right, int bottom )
     {
         super.onLayout( changed, left, top, right, bottom );
-
-        Deck.log( "onLayout()" );
 
         final int newOrientation = getResources().getConfiguration().orientation;
         if( newOrientation != mOrientation && mOrientation != -1 )
@@ -199,6 +198,27 @@ public class CardTableLayout extends FrameLayout
             && location[ 1 ] <= rawY && rawY <= location[ 1 ] + mCardHolder.getHeight();
     }
 
+    private boolean isOutside( PlayingCardView view )
+    {
+        if( view.getRight() <= 0 )
+        {
+            return true;
+        }
+        if( view.getLeft() >= getWidth() )
+        {
+            return true;
+        }
+        if( view.getBottom() <= 0 )
+        {
+            return true;
+        }
+        if( view.getTop() >= getHeight() )
+        {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public boolean onInterceptTouchEvent( MotionEvent ev )
     {
@@ -233,7 +253,14 @@ public class CardTableLayout extends FrameLayout
                     {
                         if( mListener != null )
                         {
-                            mListener.onCardSend( v.getCard() );
+                            mListener.onCardInHolder( v.getCard() );
+                        }
+                    }
+                    else if( this.isOutside( v ) )
+                    {
+                        if( mListener != null )
+                        {
+                            mListener.onCardOutside( v.getCard() );
                         }
                     }
                 }

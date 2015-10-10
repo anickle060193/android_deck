@@ -6,7 +6,8 @@
     style="@style/TableStyle"
     android:background="#654321"
     tools:context="com.adamnickle.deck.TableGameFragment"
-    android:id="@+id/cardTable">
+    android:id="@+id/cardTable"
+    android:clipChildren="false">
 
     <com.adamnickle.deck.PlayingCardHolderView
         android:layout_width="@dimen/card_width"
