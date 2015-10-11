@@ -70,7 +70,7 @@ public class PlayerGameFragment extends AbstractGameFragment
                 @Override
                 public void onCardInHolder( final Card card )
                 {
-                    showPlayerSelector( "Send card to:", new OnPlayerSelectedListener()
+                    showPlayerSelector( "Send card to:", false, new OnPlayerSelectedListener()
                     {
                         @Override
                         public void onPlayerSelected( final Player player )

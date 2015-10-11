@@ -35,9 +35,13 @@ public abstract class AbstractGameFragment extends Fragment
         return mMessenger.getGame();
     }
 
-    protected void showPlayerSelector( String title, final OnPlayerSelectedListener listener )
+    protected void showPlayerSelector( String title, boolean includeMe, final OnPlayerSelectedListener listener )
     {
         final List<Player> players = getGame().getPlayers();
+        if( !includeMe )
+        {
+            players.remove( getMessenger().getMe() );
+        }
         Dialog.showSingleChoiceDialog( getActivity(), title, true, players.toArray( new Player[ players.size() ] ), new Dialog.OnSingleChoiceDialogClickListener<Player>()
         {
             @Override
