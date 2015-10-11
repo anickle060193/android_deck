@@ -28,8 +28,6 @@ public class CardTableLayout extends FrameLayout
     private OnCardSendListener mListener;
     private Player mPlayer;
 
-    private int mOrientation = -1;
-
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public CardTableLayout( Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes )
     {
@@ -74,31 +72,6 @@ public class CardTableLayout extends FrameLayout
                 mCardHolder = (PlayingCardHolderView)view;
                 break;
             }
-        }
-    }
-
-    @Override
-    protected void onLayout( boolean changed, int left, int top, int right, int bottom )
-    {
-        super.onLayout( changed, left, top, right, bottom );
-
-        final int newOrientation = getResources().getConfiguration().orientation;
-        if( newOrientation != mOrientation && mOrientation != -1 )
-        {
-            for( int i = getChildCount() - 1; i >= 0; i-- )
-            {
-                final View view = getChildAt( i );
-                if( view instanceof PlayingCardView )
-                {
-                    final FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)view.getLayoutParams();
-                    final int temp = params.leftMargin;
-                    //noinspection SuspiciousNameCombination
-                    params.leftMargin = params.topMargin;
-                    params.topMargin = temp;
-                    view.setLayoutParams( params );
-                }
-            }
-            mOrientation = newOrientation;
         }
     }
 
