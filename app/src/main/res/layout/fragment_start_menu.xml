@@ -14,13 +14,13 @@
         android:text="Deck"/>
 
     <Button
-        android:id="@+id/createGame"
+        android:id="@+id/create_game"
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:text="Create Game"/>
 
     <Button
-        android:id="@+id/joinGame"
+        android:id="@+id/join_game"
         android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:text="Join Game"/>

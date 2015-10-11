@@ -58,7 +58,7 @@ public class GameActivity extends AppCompatActivity
             mTableOpen = savedInstanceState.getBoolean( KEY_TABLE_OPEN, false );
         }
 
-        final View rootView = findViewById( R.id.rootView );
+        final View rootView = findViewById( R.id.root_view );
         rootView.getViewTreeObserver().addOnGlobalLayoutListener( new ViewTreeObserver.OnGlobalLayoutListener()
         {
             @Override

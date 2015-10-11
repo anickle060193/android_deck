@@ -4,12 +4,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/saveGame"
+        android:id="@+id/save_game"
         android:title="Save Game"
         app:showAsAction="never" />
 
     <item
-        android:id="@+id/openGame"
+        android:id="@+id/open_game"
         android:title="Open Game"
         app:showAsAction="never" />
 

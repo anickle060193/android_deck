@@ -43,7 +43,7 @@ public class TableGameFragment extends AbstractGameFragment
         {
             mMainView = inflater.inflate( R.layout.fragment_table_game, container, false );
 
-            mCardTableLayout = (CardTableLayout)mMainView.findViewById( R.id.cardTable );
+            mCardTableLayout = (CardTableLayout)mMainView.findViewById( R.id.card_table );
             mCardTableLayout.setPlayer( getMessenger().getTable() );
             mCardTableLayout.setOnCardSendListener( mOnCardSendListener );
         }
@@ -65,7 +65,7 @@ public class TableGameFragment extends AbstractGameFragment
     {
         switch( item.getItemId() )
         {
-            case R.id.toggleTable:
+            case R.id.toggle_table:
                 ( (GameActivity)getActivity() ).toggleTable();
                 return true;
 

@@ -13,6 +13,6 @@
         android:layout_height="match_parent"
         android:name="com.adamnickle.deck.ServerListActivity$ServerListFragment"
         tools:layout="@layout/fragment_server_list"
-        android:id="@+id/serverListFragment"/>
+        android:id="@+id/server_list_fragment"/>
 
 </LinearLayout>

@@ -9,17 +9,17 @@
         <menu>
 
             <item
-                android:id="@+id/resumeAccepting"
+                android:id="@+id/resume_accepting"
                 android:title="Resume Accepting"
                 app:showAsAction="never"/>
 
             <item
-                android:id="@+id/stopAccepting"
+                android:id="@+id/stop_accepting"
                 android:title="Stop Accepting"
                 app:showAsAction="never"/>
 
             <item
-                android:id="@+id/makeDiscoverable"
+                android:id="@+id/make_discoverable"
                 android:title="Make Discoverable"
                 app:showAsAction="never" />
 

@@ -12,10 +12,10 @@
         tools:context="com.adamnickle.deck.ServerListFragment"
         tools:listitem="@layout/server_item_view"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-        android:id="@+id/serverList"/>
+        android:id="@+id/server_list"/>
 
     <TextView
-        android:id="@+id/emptyView"
+        android:id="@+id/empty_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"

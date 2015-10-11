@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".PlayerGameFragment"
-    android:id="@+id/cardTable"
+    android:id="@+id/card_table"
     android:background="#123456">
 
     <com.adamnickle.deck.PlayingCardHolderView

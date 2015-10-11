@@ -160,11 +160,11 @@ public class BluetoothFragment extends Fragment
     public void onPrepareOptionsMenu( Menu menu )
     {
         final boolean accepting = mAcceptThread != null;
-        menu.findItem( R.id.resumeAccepting ).setVisible( !accepting );
-        menu.findItem( R.id.stopAccepting ).setVisible( accepting );
+        menu.findItem( R.id.resume_accepting ).setVisible( !accepting );
+        menu.findItem( R.id.stop_accepting ).setVisible( accepting );
 
         final boolean isDiscoverable = mAdapter.getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-        menu.findItem( R.id.makeDiscoverable ).setVisible( accepting && !isDiscoverable );
+        menu.findItem( R.id.make_discoverable ).setVisible( accepting && !isDiscoverable );
     }
 
     @Override
@@ -172,15 +172,15 @@ public class BluetoothFragment extends Fragment
     {
         switch( item.getItemId() )
         {
-            case R.id.makeDiscoverable:
+            case R.id.make_discoverable:
                 setDiscoverable( 300 );
                 return true;
 
-            case R.id.resumeAccepting:
+            case R.id.resume_accepting:
                 startAccepting();
                 return true;
 
-            case R.id.stopAccepting:
+            case R.id.stop_accepting:
                 stopAccepting();
                 return true;
 

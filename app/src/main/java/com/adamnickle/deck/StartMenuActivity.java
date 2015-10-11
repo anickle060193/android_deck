@@ -43,7 +43,7 @@ public class StartMenuActivity extends AppCompatActivity
         {
             super.onViewCreated( view, savedInstanceState );
 
-            view.findViewById( R.id.createGame ).setOnClickListener( new View.OnClickListener()
+            view.findViewById( R.id.create_game ).setOnClickListener( new View.OnClickListener()
             {
                 @Override
                 public void onClick( View v )
@@ -51,7 +51,7 @@ public class StartMenuActivity extends AppCompatActivity
                     onCreateGameClick();
                 }
             } );
-            view.findViewById( R.id.joinGame ).setOnClickListener( new View.OnClickListener()
+            view.findViewById( R.id.join_game ).setOnClickListener( new View.OnClickListener()
             {
                 @Override
                 public void onClick( View v )

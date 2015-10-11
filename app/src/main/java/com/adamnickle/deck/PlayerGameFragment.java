@@ -64,7 +64,7 @@ public class PlayerGameFragment extends AbstractGameFragment
                 }
             } );
 
-            mCardTable = (CardTableLayout)mMainView.findViewById( R.id.cardTable );
+            mCardTable = (CardTableLayout)mMainView.findViewById( R.id.card_table );
             mCardTable.setOnCardSendListener( new CardTableLayout.OnCardSendListener()
             {
                 @Override
@@ -118,15 +118,15 @@ public class PlayerGameFragment extends AbstractGameFragment
     {
         switch( item.getItemId() )
         {
-            case R.id.setName:
+            case R.id.set_name:
                 showPlayerNameDialog();
                 return true;
 
-            case R.id.saveGame:
+            case R.id.save_game:
                 saveGame();
                 return true;
 
-            case R.id.openGame:
+            case R.id.open_game:
                 openGame();
                 return true;
 

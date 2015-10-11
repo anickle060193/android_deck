@@ -70,9 +70,9 @@ public class ServerListActivity extends AppCompatActivity
             {
                 mMainView = inflater.inflate( R.layout.fragment_server_list, container, false );
 
-                mEmptyView = mMainView.findViewById( R.id.emptyView );
+                mEmptyView = mMainView.findViewById( R.id.empty_view );
 
-                mRecyclerView = (RecyclerView)mMainView.findViewById( R.id.serverList );
+                mRecyclerView = (RecyclerView)mMainView.findViewById( R.id.server_list );
                 mAdapter = new ServerArrayAdapter();
                 mRecyclerView.setAdapter( mAdapter );
                 updateViews();
@@ -165,8 +165,8 @@ public class ServerListActivity extends AppCompatActivity
             {
                 super( itemView );
 
-                ServerItem = itemView.findViewById( R.id.serverItem );
-                ServerName = (TextView)itemView.findViewById( R.id.serverName );
+                ServerItem = itemView.findViewById( R.id.server_item );
+                ServerName = (TextView)itemView.findViewById( R.id.server_name );
 
                 ServerItem.setOnClickListener( new View.OnClickListener()
                 {
