@@ -4,15 +4,15 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.adamnickle.deck.MainActivity">
+    tools:context=".ServerListActivity">
 
     <include layout="@layout/toolbar" />
 
     <fragment
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:name="com.adamnickle.deck.StartMenuFragment"
-        tools:layout="@layout/fragment_start_menu"
-        android:id="@+id/startMenuFragment"/>
+        android:name="com.adamnickle.deck.ServerListActivity$ServerListFragment"
+        tools:layout="@layout/fragment_server_list"
+        android:id="@+id/serverListFragment"/>
 
 </LinearLayout>

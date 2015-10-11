@@ -1,5 +1,6 @@
 package com.adamnickle.deck;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -25,15 +26,9 @@ import java.util.List;
 import java.util.UUID;
 
 
+@SuppressLint("ValidFragment")
 public class BluetoothFragment extends Fragment
 {
-    public interface BluetoothSearchListener
-    {
-        void onDeviceFound( BluetoothDevice device );
-        void onDiscoveryStarted();
-        void onDiscoveryEnded();
-    }
-
     public interface BluetoothListener
     {
         void onDeviceConnect( BluetoothDevice device );
@@ -53,17 +48,19 @@ public class BluetoothFragment extends Fragment
     private final BluetoothAdapter mAdapter = BluetoothAdapter.getDefaultAdapter();
 
     private final HashMap<String, ConnectedThread> mConnectedThreads = new HashMap<>();
+    private final boolean mIsServer;
     private AcceptThread mAcceptThread;
-    private boolean mIsServer;
 
     private final List<BluetoothListener> mListeners = new ArrayList<>();
-    private final List<BluetoothSearchListener> mSearchListeners = new ArrayList<>();
 
     public static BluetoothFragment newInstance( boolean isServer )
     {
-        final BluetoothFragment fragment = new BluetoothFragment();
-        fragment.mIsServer = isServer;
-        return fragment;
+        return new BluetoothFragment( isServer );
+    }
+
+    public BluetoothFragment( boolean isServer )
+    {
+        mIsServer = isServer;
     }
 
     @Override
@@ -72,9 +69,6 @@ public class BluetoothFragment extends Fragment
         super.onAttach( context );
 
         final IntentFilter filter = new IntentFilter();
-        filter.addAction( BluetoothDevice.ACTION_FOUND );
-        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_STARTED );
-        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
         filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
         filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
         getActivity().registerReceiver( mReceiver, filter );
@@ -152,7 +146,6 @@ public class BluetoothFragment extends Fragment
             if( resultCode == Activity.RESULT_CANCELED )
             {
                 Deck.toast( "Other players will not be able to connect to the server." );
-                //ajn getActivity().finish();
             }
         }
     }
@@ -222,29 +215,7 @@ public class BluetoothFragment extends Fragment
         public void onReceive( Context context, Intent intent )
         {
             final String action = intent.getAction();
-            if( BluetoothDevice.ACTION_FOUND.equals( action ) )
-            {
-                final BluetoothDevice device = intent.getParcelableExtra( BluetoothDevice.EXTRA_DEVICE );
-                for( BluetoothSearchListener listener : mSearchListeners )
-                {
-                    listener.onDeviceFound( device );
-                }
-            }
-            else if( BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals( action ) )
-            {
-                for( BluetoothSearchListener listener : mSearchListeners )
-                {
-                    listener.onDiscoveryStarted();
-                }
-            }
-            else if( BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals( action ) )
-            {
-                for( BluetoothSearchListener listener : mSearchListeners )
-                {
-                    listener.onDiscoveryEnded();
-                }
-            }
-            else if( BluetoothAdapter.ACTION_STATE_CHANGED.equals( action ) )
+            if( BluetoothAdapter.ACTION_STATE_CHANGED.equals( action ) )
             {
                 final int state = intent.getIntExtra( BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF );
                 if( state == BluetoothAdapter.STATE_OFF
@@ -277,23 +248,6 @@ public class BluetoothFragment extends Fragment
         }
     };
 
-    public void registerBluetoothSearchListener( BluetoothSearchListener listener )
-    {
-        if( mSearchListeners.contains( listener ) )
-        {
-            throw new IllegalStateException( BluetoothSearchListener.class.getSimpleName() + " " + listener + " is already registered." );
-        }
-        mSearchListeners.add( listener );
-    }
-
-    public void unregisterBluetoothSearchListener( BluetoothSearchListener listener )
-    {
-        if( !mSearchListeners.remove( listener ) )
-        {
-            throw new IllegalStateException( BluetoothSearchListener.class.getSimpleName() + " " + listener + " was never registered." );
-        }
-    }
-
     public void registerBluetoothListener( BluetoothListener listener )
     {
         if( mListeners.contains( listener ) )
@@ -309,11 +263,6 @@ public class BluetoothFragment extends Fragment
         {
             throw new IllegalStateException( BluetoothListener.class.getSimpleName() + " " + listener + " was never registered." );
         }
-    }
-
-    public void findDevices()
-    {
-        mAdapter.startDiscovery();
     }
 
     private void startAccepting()

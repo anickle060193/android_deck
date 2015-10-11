@@ -1,30 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.adamnickle.deck.GameActivity"
-    android:id="@+id/rootView">
-
-    <include layout="@layout/toolbar"/>
+    android:id="@+id/rootView"
+    tools:context=".GameActivity">
 
     <FrameLayout
+        android:id="@+id/main_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"/>
 
-        <FrameLayout
-            android:id="@+id/main_content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+    <FrameLayout
+        android:id="@+id/above_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"/>
 
-        <FrameLayout
-            android:id="@+id/above_content"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipChildren="false"/>
-
-    </FrameLayout>
-
-</LinearLayout>
+</FrameLayout>
