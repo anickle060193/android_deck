@@ -57,7 +57,7 @@ public class TableGameFragment extends AbstractGameFragment
     @Override
     public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
     {
-        inflater.inflate( R.menu.game, menu );
+        inflater.inflate( R.menu.table_game, menu );
     }
 
     @Override

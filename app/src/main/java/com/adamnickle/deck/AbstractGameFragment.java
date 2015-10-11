@@ -41,7 +41,7 @@ public abstract class AbstractGameFragment extends Fragment
         Dialog.showSingleChoiceDialog( getActivity(), title, true, players.toArray( new Player[ players.size() ] ), new Dialog.OnSingleChoiceDialogClickListener<Player>()
         {
             @Override
-            public void onClick( DialogInterface dialog, Player player )
+            public void onClick( DialogInterface dialog, Player player, int which )
             {
                 listener.onPlayerSelected( player );
             }

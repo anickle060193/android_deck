@@ -7,10 +7,14 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -68,6 +72,7 @@ public class BluetoothFragment extends Fragment
     {
         super.onCreate( savedInstanceState );
         setRetainInstance( true );
+        setHasOptionsMenu( true );
 
         if( savedInstanceState == null )
         {
@@ -78,14 +83,11 @@ public class BluetoothFragment extends Fragment
                 return;
             }
 
-            enableBluetooth();
-
-            if( this.isServer() )
+            if( enableBluetooth() )
             {
-                if( !this.createServer() )
+                if( this.isServer() )
                 {
-                    getActivity().finish();
-                    Deck.toast( "The server could not be opened." );
+                    this.createServer();
                 }
             }
         }
@@ -133,7 +135,14 @@ public class BluetoothFragment extends Fragment
     {
         if( requestCode == BluetoothFragment.REQUEST_ENABLE_BT )
         {
-            if( resultCode != Activity.RESULT_OK )
+            if( resultCode == Activity.RESULT_OK )
+            {
+                if( this.isServer() )
+                {
+                    this.createServer();
+                }
+            }
+            else
             {
                 Deck.toast( "Bluetooth must be enabled." );
                 getActivity().finish();
@@ -143,10 +152,77 @@ public class BluetoothFragment extends Fragment
         {
             if( resultCode == Activity.RESULT_CANCELED )
             {
-                Deck.toast( "Must be discoverable to create a server." );
-                getActivity().finish();
+                Deck.toast( "Other players will not be able to connect to the server." );
+                //ajn getActivity().finish();
             }
         }
+    }
+
+    @Override
+    public void onCreateOptionsMenu( Menu menu, MenuInflater inflater )
+    {
+        inflater.inflate( R.menu.connection_server, menu );
+    }
+
+    @Override
+    public void onPrepareOptionsMenu( Menu menu )
+    {
+        final MenuItem serverStatus = menu.findItem( R.id.serverStatus );
+        final int scanMode = mAdapter.getScanMode();
+        switch( scanMode )
+        {
+            case BluetoothAdapter.SCAN_MODE_NONE:
+                serverStatus.setTitle( "Server Status: Not Accepting, Not Discoverable" );
+                break;
+
+            case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
+                serverStatus.setTitle( "Server Status: Accepting, Not Discoverable" );
+                break;
+
+            case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+                serverStatus.setTitle( "Server Status: Accepting, Discoverable" );
+                break;
+
+            default:
+                serverStatus.setTitle( "Server Status: Invalid (" + scanMode + ")" );
+                break;
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item )
+    {
+        switch( item.getItemId() )
+        {
+            case R.id.serverStatus:
+                setServerStatusPrompt();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected( item );
+        }
+    }
+
+    private void setServerStatusPrompt()
+    {
+        final String[] serverStatuses = { "Not Accepting", "Accepting" };
+        Dialog.showSingleChoiceDialog( getActivity(), "Set Server Status:", true, serverStatuses, new Dialog.OnSingleChoiceDialogClickListener<String>()
+        {
+            @Override
+            public void onClick( DialogInterface dialog, String obj, int which )
+            {
+                switch( which )
+                {
+                    case 0:
+                        stopAccepting();
+                        break;
+
+                    case 1:
+                        openServer();
+                        break;
+                }
+            }
+        } );
     }
 
     public BluetoothAdapter getAdapter()
@@ -159,12 +235,14 @@ public class BluetoothFragment extends Fragment
         return mIsServer;
     }
 
-    public void enableBluetooth()
+    private boolean enableBluetooth()
     {
         if( !mAdapter.isEnabled() )
         {
             startActivityForResult( new Intent( BluetoothAdapter.ACTION_REQUEST_ENABLE ), BluetoothFragment.REQUEST_ENABLE_BT );
+            return true;
         }
+        return false;
     }
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver()
@@ -201,7 +279,8 @@ public class BluetoothFragment extends Fragment
                 if( state == BluetoothAdapter.STATE_OFF
                  || state == BluetoothAdapter.STATE_TURNING_OFF )
                 {
-                    enableBluetooth();
+                    Deck.toast( "Bluetooth has been disabled." );
+                    getActivity().finish();
                 }
             }
             else if( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED.equals( action ) )
@@ -266,37 +345,23 @@ public class BluetoothFragment extends Fragment
         mAdapter.startDiscovery();
     }
 
-    public boolean createServer()
+    private void startAccepting()
     {
-        try
-        {
-            closeServer();
-            mAcceptThread = new AcceptThread();
-            mAcceptThread.start();
-
-            final Intent intent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
-            intent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300 );
-            startActivityForResult( intent, REQUEST_MAKE_DISCOVERABLE );
-            return true;
-        }
-        catch( IOException ex )
-        {
-            Deck.log( "An error occurred while opening the server connection.", ex );
-        }
-        return false;
+        stopAccepting();
+        mAcceptThread = new AcceptThread();
+        mAcceptThread.start();
     }
 
-    public void closeServer()
+    private void stopAccepting()
     {
         if( mAcceptThread != null )
         {
             mAcceptThread.cancel();
             mAcceptThread = null;
         }
-        disconnect();
     }
 
-    public void disconnect()
+    private void disconnect()
     {
         for( ConnectedThread thread : mConnectedThreads.values() )
         {
@@ -305,16 +370,34 @@ public class BluetoothFragment extends Fragment
         mConnectedThreads.clear();
     }
 
+    private void closeServer()
+    {
+        stopAccepting();
+        disconnect();
+    }
+
+    private void setDiscoverable( int duration )
+    {
+        final Intent intent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
+        intent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, duration );
+        startActivityForResult( intent, REQUEST_MAKE_DISCOVERABLE );
+    }
+
+    private void openServer()
+    {
+        startAccepting();
+        setDiscoverable( 300 );
+    }
+
+    private void createServer()
+    {
+        closeServer();
+        openServer();
+    }
+
     public void connectToDevice( BluetoothDevice device )
     {
-        try
-        {
-            new ConnectThread( device ).start();
-        }
-        catch( IOException ex )
-        {
-            Deck.log( "An error occurred while starting connecting.", ex );
-        }
+        new ConnectThread( device ).start();
     }
 
     public void sendToAll( byte[] data )
@@ -379,18 +462,29 @@ public class BluetoothFragment extends Fragment
 
     private class AcceptThread extends Thread
     {
-        private final BluetoothServerSocket mServerSocket;
+        private BluetoothServerSocket mServerSocket;
 
         private boolean mCancelled = false;
 
-        public AcceptThread() throws IOException
+        public AcceptThread()
         {
-            mServerSocket = mAdapter.listenUsingRfcommWithServiceRecord( SERVICE_NAME, DECK_UUID );
         }
 
         @Override
         public void run()
         {
+            try
+            {
+                mServerSocket = mAdapter.listenUsingRfcommWithServiceRecord( SERVICE_NAME, DECK_UUID );
+            }
+            catch( IOException ex )
+            {
+                Deck.log( "An error occurred starting the AcceptThread", ex );
+                Deck.toast( "The server could not be created." );
+                getActivity().finish();
+                return;
+            }
+
             mCancelled = false;
             while( !mCancelled )
             {
@@ -402,33 +496,27 @@ public class BluetoothFragment extends Fragment
                 catch( IOException ex )
                 {
                     Deck.log( "An error occurred while accepting a connection.", ex );
+                    Utilities.close( mServerSocket );
                 }
             }
         }
 
         public void cancel()
         {
+            Deck.log( "Cancelling Accepting thread." );
             mCancelled = true;
-            try
-            {
-                mServerSocket.close();
-            }
-            catch( IOException ex )
-            {
-                Deck.log( "An error occurred while closing the server connection.", ex );
-            }
+            Utilities.close( mServerSocket );
         }
     }
 
     private class ConnectThread extends Thread
     {
         private final BluetoothDevice mDevice;
-        private final BluetoothSocket mSocket;
+        private BluetoothSocket mSocket;
 
-        public ConnectThread( BluetoothDevice device ) throws IOException
+        public ConnectThread( BluetoothDevice device )
         {
             mDevice = device;
-            mSocket = mDevice.createRfcommSocketToServiceRecord( DECK_UUID );
         }
 
         @Override
@@ -438,20 +526,15 @@ public class BluetoothFragment extends Fragment
 
             try
             {
+                mSocket = mDevice.createRfcommSocketToServiceRecord( DECK_UUID );
+
                 mSocket.connect();
                 manageConnectedSocket( mSocket );
             }
             catch( IOException ex )
             {
                 Deck.log( "An error occurred while connecting.", ex );
-                try
-                {
-                    mSocket.close();
-                }
-                catch( IOException ex2 )
-                {
-                    Deck.log( "An error occurred while closing a connecting socket.", ex2 );
-                }
+                Utilities.close( mSocket );
 
                 if( isServer() )
                 {
@@ -462,18 +545,6 @@ public class BluetoothFragment extends Fragment
                     Deck.toast( "Failed to connect to server." );
                 }
                 getActivity().finish();
-            }
-        }
-
-        public void cancel()
-        {
-            try
-            {
-                mSocket.close();
-            }
-            catch( IOException ex )
-            {
-                Deck.log( "An error occurred while aborting connecting.", ex );
             }
         }
     }
@@ -544,6 +615,7 @@ public class BluetoothFragment extends Fragment
         {
             try
             {
+                Deck.log( "Cancelling Connected thread." );
                 mSocket.close();
             }
             catch( IOException ex )

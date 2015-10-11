@@ -104,7 +104,7 @@ public final class Dialog
 
     public interface OnSingleChoiceDialogClickListener<T>
     {
-        void onClick( DialogInterface dialog, T obj );
+        void onClick( DialogInterface dialog, T obj, int which );
     }
 
     public static <T> void showSingleChoiceDialog( Context context, String title, boolean cancelable, final T[] objects, final OnSingleChoiceDialogClickListener<T> listener )
@@ -130,7 +130,7 @@ public final class Dialog
                     @Override
                     public void onClick( DialogInterface dialog, int which )
                     {
-                        listener.onClick( dialog, objects[ which ] );
+                        listener.onClick( dialog, objects[ which ], which );
                         dialog.dismiss();
                     }
                 } );

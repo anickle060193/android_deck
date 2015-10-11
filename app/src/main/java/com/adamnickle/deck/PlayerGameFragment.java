@@ -203,7 +203,7 @@ public class PlayerGameFragment extends AbstractGameFragment
         Dialog.showSingleChoiceDialog( getActivity(), "Select game save:", true, gameSaveNames, new Dialog.OnSingleChoiceDialogClickListener<String>()
         {
             @Override
-            public void onClick( DialogInterface dialog, String saveName )
+            public void onClick( DialogInterface dialog, String saveName, int which )
             {
                 final Game game = GameSave.openGame( getActivity(), saveName );
                 if( game != null )
