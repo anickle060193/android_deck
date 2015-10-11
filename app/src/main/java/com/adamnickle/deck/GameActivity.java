@@ -3,8 +3,6 @@ package com.adamnickle.deck;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -50,7 +48,6 @@ public class GameActivity extends AppCompatActivity
             final Messenger messenger = new Messenger( bluetoothFragment );
             getSupportFragmentManager()
                     .beginTransaction()
-                    .setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN )
                     .add( bluetoothFragment, BluetoothFragment.FRAGMENT_TAG )
                     .add( R.id.main_content, PlayerGameFragment.newInstance( messenger ) )
                     .add( R.id.above_content, TableGameFragment.newInstance( messenger ) )
@@ -143,12 +140,6 @@ public class GameActivity extends AppCompatActivity
         return mTableOpen;
     }
 
-    private boolean isGameRunning()
-    {
-        final Fragment fragment = getSupportFragmentManager().findFragmentById( R.id.main_content );
-        return fragment instanceof PlayerGameFragment;
-    }
-
     @Override
     public void onBackPressed()
     {
@@ -158,27 +149,20 @@ public class GameActivity extends AppCompatActivity
         }
         else
         {
-            if( isGameRunning() )
+            Dialog.showConfirmation( this, "Leaving Game", "Are you sure you want to leave the game?", "Yes", "Cancel", new Dialog.OnConfirmationListener()
             {
-                Dialog.showConfirmation( this, "Leaving Game", "Are you sure you want to leave the game?", "Yes", "Cancel", new Dialog.OnConfirmationListener()
+                @Override
+                public void onOK()
                 {
-                    @Override
-                    public void onOK()
-                    {
-                        GameActivity.super.onBackPressed();
-                    }
+                    GameActivity.super.onBackPressed();
+                }
 
-                    @Override
-                    public void onCancel()
-                    {
-                        // Do nothing
-                    }
-                } );
-            }
-            else
-            {
-                super.onBackPressed();
-            }
+                @Override
+                public void onCancel()
+                {
+                    // Do nothing
+                }
+            } );
         }
     }
 }

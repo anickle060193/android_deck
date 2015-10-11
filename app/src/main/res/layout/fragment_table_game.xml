@@ -5,7 +5,7 @@
     android:layout_height="@dimen/table_height"
     style="@style/TableStyle"
     android:background="#654321"
-    tools:context="com.adamnickle.deck.TableGameFragment"
+    tools:context=".TableGameFragment"
     android:id="@+id/cardTable"
     android:clipChildren="false">
 
