@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">Deck</string>
+
+    <!-- Strings related to Settings -->
+    <string name="title_activity_settings">Deck Settings</string>
+
+    <!-- Example General settings -->
+    <string name="pref_header_general">General</string>
+
+    <string name="pref_title_name">Name</string>
+    <string name="pref_default_name">Default Name</string>
+
+    <string name="pref_title_player_game_background">Main Background</string>
+
+    <string name="pref_title_table_game_background">Table Background</string>
+
 </resources>

@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".PlayerGameFragment"
     android:id="@+id/card_table"
-    android:background="#123456">
+    android:background="@color/player_game_background">
 
     <com.adamnickle.deck.PlayingCardHolderView
         android:layout_width="@dimen/card_width"

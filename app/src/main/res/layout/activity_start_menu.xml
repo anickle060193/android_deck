@@ -1,9 +1,34 @@
-<fragment
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:name="com.adamnickle.deck.StartMenuActivity$StartMenuFragment"
-    tools:layout="@layout/fragment_start_menu"
-    android:id="@+id/start_menu_fragment"
-    tools:context=".StartMenuActivity"/>
+    tools:context=".StartMenuActivity"
+    android:gravity="center"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="120sp"
+        android:text="Deck"/>
+
+    <Button
+        android:id="@+id/create_game"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:text="Create Game"/>
+
+    <Button
+        android:id="@+id/join_game"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:text="Join Game"/>
+
+    <Button
+        android:id="@+id/settings"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:text="Settings"/>
+
+</LinearLayout>

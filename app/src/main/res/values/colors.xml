@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="player_game_background">#123456</color>
+
+    <color name="table_game_background">#654321</color>
+
+</resources>

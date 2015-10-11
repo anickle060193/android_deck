@@ -25,6 +25,8 @@ public class Messenger
 
     private final Game mGame = new Game();
 
+    private boolean mFirstUpdate = true;
+
     private boolean mListening = true;
     private int mModCount = 0;
     private int mLastModCount = -1;
@@ -172,6 +174,12 @@ public class Messenger
                 if( updatedGame != null )
                 {
                     onGameReceived( updatedGame );
+
+                    if( mFirstUpdate )
+                    {
+                        mFirstUpdate = false;
+                        sendUpdatedGame();
+                    }
                 }
             }
             catch( IOException ex )

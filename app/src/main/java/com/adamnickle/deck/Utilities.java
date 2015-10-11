@@ -5,6 +5,7 @@ import android.view.ViewGroup;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Objects;
 
 
 public abstract class Utilities
@@ -40,5 +41,30 @@ public abstract class Utilities
     public static float random( float min, float max )
     {
         return (float)Math.random() * ( max - min ) + min;
+    }
+
+    public static <T> int indexOf( T[] array, T obj )
+    {
+        if( obj == null )
+        {
+            for( int i = 0; i < array.length; i++ )
+            {
+                if( array[ i ] == null )
+                {
+                    return i;
+                }
+            }
+        }
+        else
+        {
+            for( int i = 0; i < array.length; i++ )
+            {
+                if( obj.equals( array[ i ] ) )
+                {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 }

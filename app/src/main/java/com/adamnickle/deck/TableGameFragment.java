@@ -44,6 +44,7 @@ public class TableGameFragment extends AbstractGameFragment
             mMainView = inflater.inflate( R.layout.fragment_table_game, container, false );
 
             mCardTableLayout = (CardTableLayout)mMainView.findViewById( R.id.card_table );
+            mCardTableLayout.setBackgroundResource( Settings.getTableGameBackgroundResource( getActivity() ) );
             mCardTableLayout.setPlayer( getMessenger().getTable() );
             mCardTableLayout.setOnCardSendListener( mOnCardSendListener );
         }

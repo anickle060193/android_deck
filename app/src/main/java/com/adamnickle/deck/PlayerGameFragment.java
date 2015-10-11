@@ -19,7 +19,7 @@ import com.adamnickle.deck.Game.Player;
 public class PlayerGameFragment extends AbstractGameFragment
 {
     private View mMainView;
-    private CardTableLayout mCardTable;
+    private CardTableLayout mCardTableLayout;
 
     public static PlayerGameFragment newInstance( Messenger messenger )
     {
@@ -39,6 +39,8 @@ public class PlayerGameFragment extends AbstractGameFragment
         setHasOptionsMenu( true );
 
         getGame().registerListener( mGameListener );
+
+        getMessenger().getMe().setName( Settings.getName( getActivity() ) );
     }
 
     @Override
@@ -47,7 +49,11 @@ public class PlayerGameFragment extends AbstractGameFragment
         if( mMainView == null )
         {
             mMainView = inflater.inflate( R.layout.fragment_player_game, container, false );
-            mMainView.setOnClickListener( new View.OnClickListener()
+
+            mCardTableLayout = (CardTableLayout)mMainView.findViewById( R.id.card_table );
+            mCardTableLayout.setBackgroundResource( Settings.getPlayerGameBackgroundResource( getActivity() ) );
+            mCardTableLayout.setPlayer( getMessenger().getMe() );
+            mCardTableLayout.setOnClickListener( new View.OnClickListener()
             {
                 @Override
                 public void onClick( View v )
@@ -59,13 +65,11 @@ public class PlayerGameFragment extends AbstractGameFragment
                     }
                     else
                     {
-                        mCardTable.getPlayer().addCard( new Card() );
+                        mCardTableLayout.getPlayer().addCard( new Card() );
                     }
                 }
             } );
-
-            mCardTable = (CardTableLayout)mMainView.findViewById( R.id.card_table );
-            mCardTable.setOnCardSendListener( new CardTableLayout.OnCardSendListener()
+            mCardTableLayout.setOnCardSendListener( new CardTableLayout.OnCardSendListener()
             {
                 @Override
                 public void onCardInHolder( final Card card )
@@ -80,7 +84,7 @@ public class PlayerGameFragment extends AbstractGameFragment
                                 @Override
                                 public void run()
                                 {
-                                    mCardTable.getPlayer().removeCard( card );
+                                    mCardTableLayout.getPlayer().removeCard( card );
                                     player.addCard( card );
                                 }
                             } );
@@ -94,7 +98,6 @@ public class PlayerGameFragment extends AbstractGameFragment
                     // Do nothing
                 }
             } );
-            mCardTable.setPlayer( getMessenger().getMe() );
         }
         else
         {
@@ -173,7 +176,7 @@ public class PlayerGameFragment extends AbstractGameFragment
             @Override
             public void onClick( DialogInterface dialog, String text )
             {
-                mCardTable.getPlayer().setName( text );
+                mCardTableLayout.getPlayer().setName( text );
             }
         } );
     }
