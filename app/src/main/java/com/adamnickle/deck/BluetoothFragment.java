@@ -7,7 +7,6 @@ import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -126,7 +125,7 @@ public class BluetoothFragment extends Fragment
         }
         else
         {
-            this.disconnect();
+            this.disconnectFromAll();
         }
     }
 
@@ -167,26 +166,12 @@ public class BluetoothFragment extends Fragment
     @Override
     public void onPrepareOptionsMenu( Menu menu )
     {
-        final MenuItem serverStatus = menu.findItem( R.id.serverStatus );
-        final int scanMode = mAdapter.getScanMode();
-        switch( scanMode )
-        {
-            case BluetoothAdapter.SCAN_MODE_NONE:
-                serverStatus.setTitle( "Server Status: Not Accepting, Not Discoverable" );
-                break;
+        final boolean accepting = mAcceptThread != null;
+        menu.findItem( R.id.resumeAccepting ).setVisible( !accepting );
+        menu.findItem( R.id.stopAccepting ).setVisible( accepting );
 
-            case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
-                serverStatus.setTitle( "Server Status: Accepting, Not Discoverable" );
-                break;
-
-            case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-                serverStatus.setTitle( "Server Status: Accepting, Discoverable" );
-                break;
-
-            default:
-                serverStatus.setTitle( "Server Status: Invalid (" + scanMode + ")" );
-                break;
-        }
+        final boolean isDiscoverable = mAdapter.getScanMode() == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+        menu.findItem( R.id.makeDiscoverable ).setVisible( accepting && !isDiscoverable );
     }
 
     @Override
@@ -194,35 +179,21 @@ public class BluetoothFragment extends Fragment
     {
         switch( item.getItemId() )
         {
-            case R.id.serverStatus:
-                setServerStatusPrompt();
+            case R.id.makeDiscoverable:
+                setDiscoverable( 300 );
+                return true;
+
+            case R.id.resumeAccepting:
+                startAccepting();
+                return true;
+
+            case R.id.stopAccepting:
+                stopAccepting();
                 return true;
 
             default:
                 return super.onOptionsItemSelected( item );
         }
-    }
-
-    private void setServerStatusPrompt()
-    {
-        final String[] serverStatuses = { "Not Accepting", "Accepting" };
-        Dialog.showSingleChoiceDialog( getActivity(), "Set Server Status:", true, serverStatuses, new Dialog.OnSingleChoiceDialogClickListener<String>()
-        {
-            @Override
-            public void onClick( DialogInterface dialog, String obj, int which )
-            {
-                switch( which )
-                {
-                    case 0:
-                        stopAccepting();
-                        break;
-
-                    case 1:
-                        openServer();
-                        break;
-                }
-            }
-        } );
     }
 
     public BluetoothAdapter getAdapter()
@@ -350,6 +321,7 @@ public class BluetoothFragment extends Fragment
         stopAccepting();
         mAcceptThread = new AcceptThread();
         mAcceptThread.start();
+        setDiscoverable( 300 );
     }
 
     private void stopAccepting()
@@ -361,38 +333,35 @@ public class BluetoothFragment extends Fragment
         }
     }
 
-    private void disconnect()
+    private void setDiscoverable( int duration )
+    {
+        if( mAdapter.getScanMode() != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE )
+        {
+            final Intent intent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
+            intent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, duration );
+            startActivityForResult( intent, REQUEST_MAKE_DISCOVERABLE );
+        }
+    }
+
+    private void createServer()
+    {
+        closeServer();
+        startAccepting();
+    }
+
+    private void closeServer()
+    {
+        stopAccepting();
+        disconnectFromAll();
+    }
+
+    private void disconnectFromAll()
     {
         for( ConnectedThread thread : mConnectedThreads.values() )
         {
             thread.cancel();
         }
         mConnectedThreads.clear();
-    }
-
-    private void closeServer()
-    {
-        stopAccepting();
-        disconnect();
-    }
-
-    private void setDiscoverable( int duration )
-    {
-        final Intent intent = new Intent( BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE );
-        intent.putExtra( BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, duration );
-        startActivityForResult( intent, REQUEST_MAKE_DISCOVERABLE );
-    }
-
-    private void openServer()
-    {
-        startAccepting();
-        setDiscoverable( 300 );
-    }
-
-    private void createServer()
-    {
-        closeServer();
-        openServer();
     }
 
     public void connectToDevice( BluetoothDevice device )

@@ -4,8 +4,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/serverStatus"
-        android:title="Server Status"
-        app:showAsAction="never" />
+        android:title="Server Options"
+        app:showAsAction="never">
+        <menu>
+
+            <item
+                android:id="@+id/resumeAccepting"
+                android:title="Resume Accepting"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/stopAccepting"
+                android:title="Stop Accepting"
+                app:showAsAction="never"/>
+
+            <item
+                android:id="@+id/makeDiscoverable"
+                android:title="Make Discoverable"
+                app:showAsAction="never" />
+
+        </menu>
+    </item>
 
 </menu>
