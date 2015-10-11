@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 
 
@@ -107,30 +108,17 @@ public final class Dialog
         void onClick( DialogInterface dialog, T obj, int which );
     }
 
-    public static <T> void showSingleChoiceDialog( Context context, String title, boolean cancelable, final T[] objects, final OnSingleChoiceDialogClickListener<T> listener )
+    public static <T> void showSingleChoiceDialog( Context context, String title, boolean cancelable, T[] objects, final OnSingleChoiceDialogClickListener<T> listener )
     {
-        String[] strings;
-        if( objects instanceof String[] )
-        {
-            strings = (String[])objects;
-        }
-        else
-        {
-            strings = new String[ objects.length ];
-            for( int i = 0; i < objects.length; i++ )
-            {
-                strings[ i ] = String.valueOf( objects[ i ] );
-            }
-        }
-
+        final ArrayAdapter<T> adapter = new ArrayAdapter<T>( context, android.R.layout.select_dialog_item, objects );
         final AlertDialog.Builder builder = new AlertDialog.Builder( context )
                 .setTitle( title )
-                .setSingleChoiceItems( strings, -1, new DialogInterface.OnClickListener()
+                .setAdapter( adapter, new DialogInterface.OnClickListener()
                 {
                     @Override
                     public void onClick( DialogInterface dialog, int which )
                     {
-                        listener.onClick( dialog, objects[ which ], which );
+                        listener.onClick( dialog, adapter.getItem( which ), which );
                         dialog.dismiss();
                     }
                 } );
