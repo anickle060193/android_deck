@@ -83,7 +83,7 @@ public class BluetoothFragment extends Fragment
                 return;
             }
 
-            if( enableBluetooth() )
+            if( !enableBluetooth() )
             {
                 if( this.isServer() )
                 {
@@ -496,9 +496,14 @@ public class BluetoothFragment extends Fragment
                 catch( IOException ex )
                 {
                     Deck.log( "An error occurred while accepting a connection.", ex );
-                    Utilities.close( mServerSocket );
+                    if( !mAdapter.isEnabled() )
+                    {
+                        break;
+                    }
                 }
             }
+
+            Utilities.close( mServerSocket );
         }
 
         public void cancel()
