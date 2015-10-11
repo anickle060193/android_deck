@@ -68,6 +68,20 @@ public class BluetoothFragment extends Fragment
     }
 
     @Override
+    public void onAttach( Context context )
+    {
+        super.onAttach( context );
+
+        final IntentFilter filter = new IntentFilter();
+        filter.addAction( BluetoothDevice.ACTION_FOUND );
+        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_STARTED );
+        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
+        filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
+        filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
+        getActivity().registerReceiver( mReceiver, filter );
+    }
+
+    @Override
     public void onCreate( Bundle savedInstanceState )
     {
         super.onCreate( savedInstanceState );
@@ -94,25 +108,11 @@ public class BluetoothFragment extends Fragment
     }
 
     @Override
-    public void onResume()
+    public void onDetach()
     {
-        super.onResume();
-
-        final IntentFilter filter = new IntentFilter();
-        filter.addAction( BluetoothDevice.ACTION_FOUND );
-        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_STARTED );
-        filter.addAction( BluetoothAdapter.ACTION_DISCOVERY_FINISHED );
-        filter.addAction( BluetoothAdapter.ACTION_STATE_CHANGED );
-        filter.addAction( BluetoothAdapter.ACTION_SCAN_MODE_CHANGED );
-        getActivity().registerReceiver( mReceiver, filter );
-    }
-
-    @Override
-    public void onPause()
-    {
-        super.onPause();
-
         getActivity().unregisterReceiver( mReceiver );
+
+        super.onDetach();
     }
 
     @Override
