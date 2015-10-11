@@ -28,6 +28,9 @@ public class CardTableLayout extends FrameLayout
     private OnCardSendListener mListener;
     private Player mPlayer;
 
+    private int mLastWidth = 0;
+    private int mLastHeight = 0;
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public CardTableLayout( Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes )
     {
@@ -56,6 +59,8 @@ public class CardTableLayout extends FrameLayout
     private void initialize()
     {
         setClickable( true );
+        mLastWidth = getWidth();
+        mLastHeight = getHeight();
     }
 
     @Override
@@ -73,6 +78,36 @@ public class CardTableLayout extends FrameLayout
                 break;
             }
         }
+    }
+
+    @Override
+    protected void onLayout( boolean changed, int left, int top, int right, int bottom )
+    {
+        if( changed )
+        {
+            final int width = right - left;
+            final int height = bottom - top;
+            final float widthMultiplier = (float)width / mLastWidth;
+            final float heightMultiplier = (float)height / mLastHeight;
+
+            for( int i = getChildCount() - 1; i >= 0; i-- )
+            {
+                final View view = getChildAt( i );
+                if( view instanceof PlayingCardView )
+                {
+                    final FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)view.getLayoutParams();
+                    params.leftMargin = (int)( params.leftMargin * widthMultiplier );
+                    params.topMargin = (int)( params.topMargin * heightMultiplier );
+                }
+            }
+
+            mLastWidth = width;
+            mLastHeight = height;
+
+            requestLayout();
+        }
+
+        super.onLayout( changed, left, top, right, bottom );
     }
 
     public void setPlayer( Player player )
