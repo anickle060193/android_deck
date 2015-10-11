@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="background_names">
+        <item>Argyle</item>
+        <item>Congruent Pentagon</item>
+        <item>Dark Geometric</item>
+        <item>Dark Wood</item>
+        <item>Diagmonds</item>
+        <item>G-Play Pattern</item>
+        <item>Hexabump</item>
+        <item>Pool Table</item>
+        <item>Purty Wood</item>
+        <item>Random Grey Variations</item>
+        <item>Retina Wood</item>
+        <item>Wood 4</item>
+        <item>Wood 5</item>
+    </string-array>
+
+    <!--========================================================
+     These patterns were downloaded from www.subtlepatterns.com
+     If you need more, that's where to get 'em.
+    =========================================================-->
+    <integer-array name="background_drawables">
+        <item>@drawable/argyle</item>
+        <item>@drawable/congruent_pentagon</item>
+        <item>@drawable/dark_geometric</item>
+        <item>@drawable/dark_wood</item>
+        <item>@drawable/diagmonds</item>
+        <item>@drawable/gplaypattern</item>
+        <item>@drawable/hexabump</item>
+        <item>@drawable/pool_table</item>
+        <item>@drawable/purty_wood</item>
+        <item>@drawable/random_grey_variations</item>
+        <item>@drawable/retina_wood</item>
+        <item>@drawable/tileable_wood_texture</item>
+        <item>@drawable/wood_pattern</item>
+    </integer-array>
+
+</resources>
