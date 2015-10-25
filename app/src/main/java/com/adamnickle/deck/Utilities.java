@@ -1,11 +1,13 @@
 package com.adamnickle.deck;
 
+import android.content.Context;
+import android.content.res.TypedArray;
+import android.support.annotation.ArrayRes;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Objects;
 
 
 public abstract class Utilities
@@ -66,5 +68,20 @@ public abstract class Utilities
             }
         }
         return -1;
+    }
+
+    public static int[] getResourceArray( Context context, @ArrayRes int id )
+    {
+        final TypedArray array = context.getResources().obtainTypedArray( id );
+
+        final int length = array.length();
+        final int[] resArray = new int[ length ];
+        for( int i = 0; i < length; i++ )
+        {
+            resArray[ i ] = array.getResourceId( i, 0 );
+        }
+
+        array.recycle();
+        return resArray;
     }
 }

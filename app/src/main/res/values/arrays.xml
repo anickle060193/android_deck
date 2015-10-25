@@ -21,20 +21,20 @@
      These patterns were downloaded from www.subtlepatterns.com
      If you need more, that's where to get 'em.
     =========================================================-->
-    <integer-array name="background_drawables">
-        <item>@drawable/argyle</item>
-        <item>@drawable/congruent_pentagon</item>
-        <item>@drawable/dark_geometric</item>
-        <item>@drawable/dark_wood</item>
-        <item>@drawable/diagmonds</item>
-        <item>@drawable/gplaypattern</item>
-        <item>@drawable/hexabump</item>
-        <item>@drawable/pool_table</item>
-        <item>@drawable/purty_wood</item>
-        <item>@drawable/random_grey_variations</item>
-        <item>@drawable/retina_wood</item>
-        <item>@drawable/tileable_wood_texture</item>
-        <item>@drawable/wood_pattern</item>
-    </integer-array>
+    <array name="background_drawables">
+        <item>@drawable/argyle_background</item>
+        <item>@drawable/congruent_pentagon_background</item>
+        <item>@drawable/dark_geometric_background</item>
+        <item>@drawable/dark_wood_background</item>
+        <item>@drawable/diagmonds_background</item>
+        <item>@drawable/gplaypattern_background</item>
+        <item>@drawable/hexabump_background</item>
+        <item>@drawable/pool_table_background</item>
+        <item>@drawable/purty_wood_background</item>
+        <item>@drawable/random_grey_variations_background</item>
+        <item>@drawable/retina_wood_background</item>
+        <item>@drawable/tileable_wood_texture_background</item>
+        <item>@drawable/wood_pattern_background</item>
+    </array>
 
 </resources>

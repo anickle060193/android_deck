@@ -39,7 +39,8 @@ public abstract class Settings
             }
             else
             {
-                return context.getResources().getIntArray( R.array.background_drawables )[ index ];
+                final int[] backgrounds = Utilities.getResourceArray( context, R.array.background_drawables );
+                return backgrounds[ index ];
             }
         }
     }

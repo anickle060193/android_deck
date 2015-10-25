@@ -9,7 +9,6 @@
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.adamnickle.deck.ServerListFragment"
         tools:listitem="@layout/server_item_view"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         android:id="@+id/server_list"/>
