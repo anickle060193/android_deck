@@ -29,12 +29,12 @@ public class ServerListActivity extends AppCompatActivity
             getWindow().addFlags( WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON );
         }
 
-        setSupportActionBar( (Toolbar)findViewById( R.id.toolbar ) );
+        setSupportActionBar( (Toolbar)findViewById( R.id.server_list_activity_toolbar ) );
 
-        mIndeterminateProgressBar = (ProgressBar)findViewById( R.id.progress_bar );
+        mIndeterminateProgressBar = (ProgressBar)findViewById( R.id.server_list_activity_toolbar_progress_bar );
     }
 
-    public void setIndeterminateProgressVisibility( boolean visible )
+    public void setProgressVisibility( boolean visible )
     {
         mIndeterminateProgressBar.setVisibility( visible ? View.VISIBLE : View.GONE );
     }
@@ -107,7 +107,7 @@ public class ServerListActivity extends AppCompatActivity
 
             mBluetoothSearchFragment.unregisterBluetoothSearchListener( mSearchListener );
 
-            ( (ServerListActivity)getActivity() ).setIndeterminateProgressVisibility( false );
+            ( (ServerListActivity)getActivity() ).setProgressVisibility( false );
         }
 
         private final BluetoothSearchFragment.BluetoothSearchListener mSearchListener = new BluetoothSearchFragment.BluetoothSearchListener()
@@ -125,13 +125,13 @@ public class ServerListActivity extends AppCompatActivity
             @Override
             public void onDiscoveryStarted()
             {
-                ( (ServerListActivity)getActivity() ).setIndeterminateProgressVisibility( true );
+                ( (ServerListActivity)getActivity() ).setProgressVisibility( true );
             }
 
             @Override
             public void onDiscoveryEnded()
             {
-                ( (ServerListActivity)getActivity() ).setIndeterminateProgressVisibility( false );
+                ( (ServerListActivity)getActivity() ).setProgressVisibility( false );
             }
         };
 
